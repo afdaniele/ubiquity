@@ -1,11 +1,21 @@
-from typing import Any, Dict
-from inspect import getmembers, signature, _empty
+from typing import Any, Dict, Union
+from inspect import \
+    getmembers,\
+    signature,\
+    _empty,\
+    _ParameterKind
 from collections import OrderedDict
 from enum import Enum
 
 StubID = int
 FieldType = Any
-ParameterType = Any
+ParameterType = Union[
+    '__default__',
+    '__positional__',
+    '__keyword__',
+    '__var_positional__',
+    '__var_keyword__'
+]
 ArgumentType = Any
 NOTSET = "__NOTSET__"
 
@@ -15,18 +25,26 @@ class AccessMode(Enum):
     PERMISSIVE = 2
 
 
+class ShoeboxContent:
+    pass
+
+
 class Shoebox:
 
     _utype = '__shoebox__'
 
-    def __init__(self, id: str):
-        self._id = id
+    def __init__(self, name: str):
+        self._name = name
+        self._quanta = {}
         self._objects = {}
+        self.content = ShoeboxContent()
 
-    def id(self):
-        return self._id
+    def name(self):
+        return self._name
 
-    def add(self, obj: Any, access: AccessMode = AccessMode.PUBLIC_ONLY) -> StubID:
+    def add(self, name: str, obj: Any, access: AccessMode = AccessMode.PUBLIC_ONLY) -> StubID:
+        if not name.isidentifier():
+            raise ValueError('The name "{:s}" is not a valid identifier for the object' % name)
         stub_id = id(obj)
         # create stub for the object
         stub = Stub(stub_id)
@@ -47,14 +65,23 @@ class Shoebox:
                 continue
             method_args = OrderedDict()
             for arg_name, arg_info in method_signature.parameters.items():
-                arg_type = arg_info.annotation if arg_info.annotation != _empty else NOTSET
+                arg_type = {
+                    _ParameterKind.POSITIONAL_OR_KEYWORD: '__default__',
+                    _ParameterKind.POSITIONAL_ONLY: '__positional__',
+                    _ParameterKind.VAR_POSITIONAL: '__var_positional__',
+                    _ParameterKind.KEYWORD_ONLY: '__keyword__',
+                    _ParameterKind.VAR_KEYWORD: '__var_keyword__',
+                }[arg_info.kind]
+                arg_annotation = arg_info.annotation if arg_info.annotation != _empty else NOTSET
                 arg_default = arg_info.default if arg_info.default != _empty else NOTSET
-                arg = Parameter(arg_name, arg_type, arg_default)
+                arg = Parameter(arg_name, arg_type, arg_annotation, arg_default)
                 method_args[arg_name] = arg
             method = Method(method_name, method_args)
             stub.add_method(method)
         # add object to stub
-        self._objects[stub_id] = stub
+        self._quanta[stub_id] = stub
+        self._objects[name] = stub_id
+        setattr(self.content, name, stub)
         # return object ID
         return stub_id
 
@@ -62,13 +89,12 @@ class Shoebox:
         return {
             '__ubiquity_object__': 1,
             '__type__': self._utype,
-            '__.id__': self._id,
-            '__.objects__': {
-                id: o.serialize() for id, o in self._objects.items()
-            }
+            '__.name__': self._name,
+            '__.quanta__': {
+                id: o.serialize() for id, o in self._quanta.items()
+            },
+            '__.objects__': self._objects
         }
-
-
 
 
 class Field:
@@ -98,9 +124,10 @@ class Parameter:
 
     _utype = '__parameter__'
 
-    def __init__(self, name: str, ptype: ParameterType, default: Any):
+    def __init__(self, name: str, ptype: ParameterType, annotation: Any, default: Any):
         self._name = name
         self._type = ptype
+        self._annotation = annotation
         self._default = default
 
     def get_name(self) -> str:
@@ -108,6 +135,9 @@ class Parameter:
 
     def get_type(self) -> ParameterType:
         return self._type
+
+    def get_annotation(self) -> Any:
+        return self._annotation
 
     def get_default(self) -> Any:
         return self._default
@@ -118,6 +148,7 @@ class Parameter:
             '__type__': self._utype,
             '__.name__': self._name,
             '__.type__': str(self._type),
+            '__.annotation__': str(self._annotation),
             '__.default__': self._default
         }
 
@@ -141,9 +172,9 @@ class Method:
             '__ubiquity_object__': 1,
             '__type__': self._utype,
             '__.name__': self._name,
-            '__.args__': {
-                k: v.serialize() for k, v in self._args.items()
-            }
+            '__.args__': OrderedDict([
+                (k, v.serialize()) for k, v in self._args.items()
+            ])
         }
 
 
@@ -176,19 +207,22 @@ class Stub:
             '__ubiquity_object__': 1,
             '__type__': self._utype,
             '__.id__': self._id,
-            '__.fields__': {
-                k: v.serialize() for k, v in self._fields.items()
-            },
-            '__.methods__': {
-                k: v.serialize() for k, v in self._methods.items()
-            }
+            '__.fields__': OrderedDict([
+                (k, v.serialize()) for k, v in self._fields.items()
+            ]),
+            '__.methods__': OrderedDict([
+                (k, v.serialize()) for k, v in self._methods.items()
+            ])
         }
 
 
 
 if __name__ == '__main__':
     import json
+    from goprocam import GoProCamera
     from types import SimpleNamespace
+
+    goproCamera = GoProCamera.GoPro()
 
     def fcn(a, b: str, c: int, *args, **kwargs) -> int:
         return 1
@@ -197,8 +231,38 @@ if __name__ == '__main__':
 
     sbox = Shoebox('general')
 
-    sbox.add(a)
+    sbox.add('sn', a)
+    sbox.add('gopro', goproCamera)
 
 
 
-    print(json.dumps(sbox.serialize(), indent=4, sort_keys=True))
+    print(json.dumps(sbox.serialize(), indent=4, sort_keys=False))
+
+
+
+
+# > Entanglement:
+# The phenomenon in quantum theory whereby particles that interact with each other become
+# permanently dependent on each other’s quantum states and properties, to the extent that
+# they lose their individuality and in many ways behave as a single entity. At some level,
+# entangled particles appear to “know” each other’s states and properties.
+
+
+# > Nonlocality:
+# The rather spooky ability of objects in quantum theory to apparently instantaneously
+# know about each other’s quantum state, even when separated by large distances, in
+# apparent contravention of the principle of locality (the idea that distant objects cannot
+# have direct influence on one another, and that an object is influenced directly only by
+# its immediate surroundings).
+
+
+# > Superposition:
+# The ability in quantum theory of an object, such as an atom or sub-atomic particle,
+# to be in more than one quantum state at the same time. For example, an object could
+# technically be in more than one place simultaneously as a consequence of the wave-like
+# character of microscopic particles.
+
+# > Wave-Particle Duality:
+# The idea that light (and indeed all matter and energy) is both a wave and a particle,
+# and that sometimes it behaves like a wave and sometimes it behaves like a particle.
+# It is a central concept of quantum theory.
