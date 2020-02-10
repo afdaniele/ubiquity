@@ -1,11 +1,14 @@
+import json
 from typing import Any, Dict, Union
 from inspect import \
-    getmembers,\
-    signature,\
-    _empty,\
+    getmembers, \
+    signature, \
+    _empty, \
     _ParameterKind
 from collections import OrderedDict
+from .exceptions import JSONParseError
 from enum import Enum
+import asyncio
 
 StubID = int
 FieldType = Any
@@ -30,17 +33,25 @@ class ShoeboxContent:
 
 
 class Shoebox:
-
     _utype = '__shoebox__'
 
     def __init__(self, name: str):
         self._name = name
         self._quanta = {}
+        self._tunnels = []
         self._objects = {}
-        self.content = ShoeboxContent()
+        self._content = ShoeboxContent()
 
     def name(self):
         return self._name
+
+    @property
+    def content(self):
+        return self._content
+
+    @staticmethod
+    def join():
+        asyncio.get_event_loop().run_forever()
 
     def add(self, name: str, obj: Any, access: AccessMode = AccessMode.PUBLIC_ONLY) -> StubID:
         if not name.isidentifier():
@@ -81,24 +92,46 @@ class Shoebox:
         # add object to stub
         self._quanta[stub_id] = stub
         self._objects[name] = stub_id
-        setattr(self.content, name, stub)
+        setattr(self._content, name, stub)
         # return object ID
         return stub_id
 
-    def serialize(self):
+    def attach(self, tunnel: 'Tunnel'):
+        self._tunnels.append(tunnel)
+        tunnel.attach(self)
+
+    def detach(self, tunnel: 'Tunnel'):
+        tunnel.detach()
+        self._tunnels.remove(tunnel)
+
+    def serialize(self) -> dict:
         return {
             '__ubiquity_object__': 1,
             '__type__': self._utype,
             '__.name__': self._name,
             '__.quanta__': {
-                id: o.serialize() for id, o in self._quanta.items()
+                i: o.serialize() for i, o in self._quanta.items()
             },
             '__.objects__': self._objects
         }
 
+    @staticmethod
+    def from_json(shoebox_raw: Union[str, Dict]) -> 'Shoebox':
+        if isinstance(shoebox_raw, str):
+            shoebox_raw = json.loads(shoebox_raw)
+        if '__ubiquity_object__' not in shoebox_raw or \
+                shoebox_raw['__ubiquity_object__'] != 1 or \
+                '__type__' not in shoebox_raw or \
+                shoebox_raw['__type__'] != Shoebox._utype:
+            raise JSONParseError('The given JSON string does not contain a valid Shoebox description')
+        # ---
+        shoebox = Shoebox(shoebox_raw['__.name__'])
+        # TODO: parse quanta
+        # TODO: parse objects
+        return shoebox
+
 
 class Field:
-
     _utype = '__field__'
 
     def __init__(self, name: str, ftype: FieldType):
@@ -121,7 +154,6 @@ class Field:
 
 
 class Parameter:
-
     _utype = '__parameter__'
 
     def __init__(self, name: str, ptype: ParameterType, annotation: Any, default: Any):
@@ -154,7 +186,6 @@ class Parameter:
 
 
 class Method:
-
     _utype = '__method__'
 
     def __init__(self, name: str, args: Dict[str, Parameter]):
@@ -179,7 +210,6 @@ class Method:
 
 
 class Stub:
-
     _utype = '__stub__'
 
     def __init__(self, sid: int):
@@ -214,32 +244,6 @@ class Stub:
                 (k, v.serialize()) for k, v in self._methods.items()
             ])
         }
-
-
-
-if __name__ == '__main__':
-    import json
-    from goprocam import GoProCamera
-    from types import SimpleNamespace
-
-    goproCamera = GoProCamera.GoPro()
-
-    def fcn(a, b: str, c: int, *args, **kwargs) -> int:
-        return 1
-
-    a = SimpleNamespace(a=5, b=None, c={}, d={'asd': 74}, e=[], f=[1, 2], g=lambda d: [], h=fcn)
-
-    sbox = Shoebox('general')
-
-    sbox.add('sn', a)
-    sbox.add('gopro', goproCamera)
-
-
-
-    print(json.dumps(sbox.serialize(), indent=4, sort_keys=False))
-
-
-
 
 # > Entanglement:
 # The phenomenon in quantum theory whereby particles that interact with each other become
