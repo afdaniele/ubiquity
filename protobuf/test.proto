@@ -1,0 +1,77 @@
+syntax = "proto3";
+
+import "google/protobuf/any.proto";
+
+message UbiquityObject {
+  bool __ubiquity_object__ = 1;
+  enum Type {
+    SHOEBOX = 0;
+    FIELD_GETTER_REQUEST = 1;
+    FIELD_GETTER_RESPONSE = 2;
+    FIELD_SETTER_REQUEST = 3;
+    FIELD_SETTER_RESPONSE = 4;
+    METHOD_CALL_REQUEST = 5;
+    METHOD_CALL_RESPONSE = 6;
+    ERROR = 20;
+  }
+  Type type = 2;
+  oneof data_oneof {
+    Shoebox shoebox = 3;
+    Shoebox getter_request = 4;
+    Shoebox getter_response = 5;
+    Shoebox setter_request = 6;
+    Shoebox setter_response = 7;
+    Shoebox call_request = 8;
+    Shoebox call_response = 9;
+    Shoebox error = 10;
+  }
+}
+
+message Header {
+  string shoebox_name = 1;
+  string request_wave = 2;
+  int64 quantum_id = 3;
+}
+
+message Shoebox {
+  Header header = 1;
+
+}
+
+message FieldGetterRequest {
+  Header header = 1;
+
+}
+
+message FieldGetterResponse {
+  Header header = 1;
+
+}
+
+message FieldSetterRequest {
+  Header header = 1;
+
+}
+
+message FieldSetterResponse {
+  Header header = 1;
+
+}
+
+message MethodCallRequest {
+  Header header = 1;
+  string method_name = 2;
+  map<string, google.protobuf.Any> args = 3;
+}
+
+message MethodCallResponse {
+  Header header = 1;
+  google.protobuf.Any return_value = 2;
+}
+
+message Error {
+  Header header = 1;
+  string type = 2;
+  string message = 3;
+  string traceback = 4;
+}
