@@ -37,7 +37,7 @@ class Tunnel(TunnelIF, ABC):
         except (json.JSONDecodeError, WaveParseError):
             ex_type, ex_value, ex_traceback = sys.exc_info()
             logger.debug('Tunnel[{:s}]: Received invalid wave.'.format(str(self)))
-            return ErrorResponseWave(None, None, ex_type, ex_value, ex_traceback)
+            return ErrorResponseWave.from_exception(None, ex_type, ex_value, ex_traceback)
         # we have a valid wave, apply and get result
         return wave.hit(self._shoebox)
 

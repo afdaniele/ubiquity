@@ -27,6 +27,7 @@ class Wave(WaveIF, ABC):
         from .shoebox import ShoeboxWave
         from .method import MethodCallRequestWave, MethodCallResponseWave
         from .field import FieldRequestWave, FieldResponseWave
+        from .error import ErrorResponseWave
         # ---
         wave = json.loads(wave_raw, object_pairs_hook=OrderedDict)
         if not Wave._is_wave(wave):
@@ -36,7 +37,8 @@ class Wave(WaveIF, ABC):
             '__field_request_wave__': FieldRequestWave.deserialize,
             '__field_response_wave__': FieldResponseWave.deserialize,
             '__method_call_request_wave__': MethodCallRequestWave.deserialize,
-            '__method_call_response_wave__': MethodCallResponseWave.deserialize
+            '__method_call_response_wave__': MethodCallResponseWave.deserialize,
+            '__error_response_wave__': ErrorResponseWave.deserialize
         }
         try:
             return parser[wave['__type__']](wave)

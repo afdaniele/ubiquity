@@ -43,14 +43,10 @@ class ErrorResponseWave(Wave):
     def _serialize(self) -> dict:
         # TODO: self._error_trace needs extra serialization
         return {
-            '__ubiquity_object__': 1,
-            '__type__': '__method_return__',
-            '__data__': {
-                '__request_wave__': self._request_wave,
-                '__type__': self._error_type,
-                '__message__': self._error_message,
-                '__trace__': self._error_trace
-            }
+            '__request_wave__': self._request_wave,
+            '__type__': self._error_type,
+            '__message__': self._error_message,
+            '__trace__': self._error_trace
         }
 
     @staticmethod
@@ -61,6 +57,7 @@ class ErrorResponseWave(Wave):
         try:
             if wave['__type__'] != ErrorResponseWave._utype:
                 raise WaveParseError('The given object is not a valid ErrorResponseWave')
+            wave = wave['__data__']
             return ErrorResponseWave(
                 None, wave['__request_wave__'], wave['__type__'], wave['__message__'], wave['__trace__']
             )
@@ -68,7 +65,7 @@ class ErrorResponseWave(Wave):
             raise WaveParseError('The given object is not a valid ErrorResponseWave')
 
     @staticmethod
-    def from_exception(request_wave: str, ex_type: BaseException,
+    def from_exception(request_wave: Union[str, None], ex_type: BaseException,
                        ex_value: Exception, ex_traceback: TracebackType) -> 'ErrorResponseWave':
         # turn exception into an ErrorRespondeWave
         return ErrorResponseWave(None, request_wave, str(ex_type), str(ex_value), str(ex_traceback))

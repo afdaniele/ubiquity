@@ -22,6 +22,7 @@ class Shoebox(ShoeboxIF):
         if not name.isidentifier():
             raise ValueError('The name "{:s}" is not a valid identifier for the object' % name)
         self._objects[name] = quantum_id
+        setattr(self.content, name, self._quanta[quantum_id])
 
     def add(self, name: str, obj: Any):
         if not name.isidentifier():

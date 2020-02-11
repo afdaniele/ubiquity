@@ -253,8 +253,8 @@ class Method:
 class Quantum:
     _utype = '__stub__'
 
-    def __init__(self, sid: int):
-        self._id = sid
+    def __init__(self, quantum_id: int):
+        self._id = quantum_id
         self._fields = []
         self._methods = []
 
