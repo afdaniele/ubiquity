@@ -1,4 +1,5 @@
-from typing import Any, Union, Iterable
+from typing import Any, Union, Iterable, Dict
+from abc import abstractmethod
 
 
 QuantumID = int
@@ -11,6 +12,152 @@ ParameterType = Union[
     '__var_keyword__'
 ]
 NOTSET = "__NOTSET__"
+
+
+class ShoeboxContent:
+    pass
+
+
+class QuantumStub:
+    pass
+
+
+class ShoeboxIF:
+
+    def __init__(self, name: str):
+        self._name = name
+        self._quanta = {}
+        self._tunnels = []
+        self._objects = {}
+        self._content = ShoeboxContent()
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def quanta(self):
+        return self._quanta
+
+    @property
+    def objects(self):
+        return self._objects
+
+    @property
+    def content(self):
+        return self._content
+
+    @abstractmethod
+    def register_quantum(self, obj: Any) -> QuantumID:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def name_quantum(self, name: str, quantum_id: QuantumID):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def add(self, name: str, obj: Any):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def attach(self, tunnel: 'TunnelIF'):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def detach(self, tunnel: 'TunnelIF'):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def serialize(self) -> dict:
+        raise NotImplementedError()
+
+    @staticmethod
+    @abstractmethod
+    def deserialize(shoebox_raw: Union[str, Dict]) -> 'ShoeboxIF':
+        raise NotImplementedError()
+
+
+class TunnelIF:
+
+    def __init__(self):
+        self._shoebox = None
+        self._is_shutdown = False
+
+    @property
+    def shoebox(self):
+        return self._shoebox
+
+    @property
+    def is_shutdown(self):
+        return self._is_shutdown
+
+    def shutdown(self):
+        self._is_shutdown = True
+
+    @abstractmethod
+    def attach(self, shoebox: ShoeboxIF):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def detach(self):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def wave_in(self, wave_raw: str):
+        raise NotImplementedError()
+
+    @abstractmethod
+    async def wave_out(self, wave: 'WaveIF'):
+        raise NotImplementedError()
+
+    @abstractmethod
+    async def _send_wave(self, wave_raw: str):
+        raise NotImplementedError()
+
+
+class WaveIF:
+    _utype = None
+
+    def __init__(self, shoebox: Union[ShoeboxIF, None]):
+        self._shoebox = shoebox
+
+    @property
+    def utype(self) -> str:
+        return self._utype
+
+    @property
+    def shoebox(self) -> ShoeboxIF:
+        return self._shoebox
+
+    @abstractmethod
+    def hit(self, shoebox: Union[None, ShoeboxIF]) -> Union[None, 'WaveIF']:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _serialize(self) -> dict:
+        raise NotImplementedError()
+
+    @staticmethod
+    @abstractmethod
+    def deserialize(wave: dict) -> 'WaveIF':
+        raise NotImplementedError()
+
+    @abstractmethod
+    def serialize(self) -> str:
+        raise NotImplementedError()
+
+    @staticmethod
+    @abstractmethod
+    def from_json(wave_raw: str) -> 'WaveIF':
+        raise NotImplementedError()
+
+    @staticmethod
+    def _is_wave(wave: dict) -> bool:
+        if '__ubiquity_object__' not in wave or \
+                wave['__ubiquity_object__'] != 1 or \
+                '__type__' not in wave:
+            return False
+        return True
 
 
 class Field:

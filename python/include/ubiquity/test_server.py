@@ -17,7 +17,7 @@ if __name__ == '__main__':
     from goprocam import GoProCamera
     from types import SimpleNamespace
 
-    goproCamera = GoProCamera.GoPro(ip_address='127.0.0.1')
+    # goproCamera = GoProCamera.GoPro()
 
     def fcn(a, b: str, c: int, *args, **kwargs) -> int:
         return 1
@@ -39,9 +39,7 @@ if __name__ == '__main__':
     sbox.attach(tunnel)
 
     sbox.add('sn', a)
-    sbox.add('gopro', goproCamera)
-
-    print(json.dumps(sbox.serialize(), indent=4, sort_keys=False))
+    # sbox.add('gopro', goproCamera)
 
     print('Spinning the event_loop')
     if run_from_ipython():

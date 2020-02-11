@@ -3,17 +3,18 @@ from typing import Union
 
 from . import Wave
 from ubiquity.exceptions import WaveParseError
-from ubiquity.logger import get_logger
-
-
-logger = get_logger()
+from ubiquity.types import ShoeboxIF, WaveIF
 
 
 class ErrorResponseWave(Wave):
-
     _utype = '__error_response_wave__'
 
-    def __init__(self, shoebox: Union['Shoebox', None], request_wave: Union[str, None], etype: str, emessage: str, etrace: str):
+    def __init__(self,
+                 shoebox: Union[ShoeboxIF, None],
+                 request_wave: Union[str, None],
+                 etype: str,
+                 emessage: str,
+                 etrace: str):
         super().__init__(shoebox)
         self._request_wave = request_wave
         self._error_type = etype
@@ -36,7 +37,7 @@ class ErrorResponseWave(Wave):
     def error_trace(self) -> str:
         return self._error_trace
 
-    def apply(self, shoebox: Union[None, 'Shoebox']) -> Union[None, 'Wave']:
+    def hit(self, shoebox: Union[None, ShoeboxIF]) -> Union[None, WaveIF]:
         return None
 
     def _serialize(self) -> dict:

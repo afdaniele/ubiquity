@@ -1,46 +1,13 @@
 from typing import Any, Dict, Union
-import asyncio
 
-from .types import QuantumID
+from .types import QuantumID, ShoeboxIF
 from .tunnel import Tunnel
 
-# class AccessMode(Enum):
-#     PUBLIC_ONLY = 1
-#     PERMISSIVE = 2
 
-
-class ShoeboxContent:
-    pass
-
-
-class Shoebox:
+class Shoebox(ShoeboxIF):
 
     def __init__(self, name: str):
-        self._name = name
-        self._quanta = {}
-        self._tunnels = []
-        self._objects = {}
-        self._content = ShoeboxContent()
-
-    @property
-    def name(self):
-        return self._name
-
-    @property
-    def quanta(self):
-        return self._quanta
-
-    @property
-    def objects(self):
-        return self._objects
-
-    @property
-    def content(self):
-        return self._content
-
-    @staticmethod
-    def join():
-        asyncio.get_event_loop().run_forever()
+        super().__init__(name)
 
     def register_quantum(self, obj: Any) -> QuantumID:
         if obj is None:
@@ -78,9 +45,6 @@ class Shoebox:
     def deserialize(shoebox_raw: Union[str, Dict]) -> 'Shoebox':
         from .serialization import deserialize_shoebox
         return deserialize_shoebox(shoebox_raw)
-
-
-
 
 
 # > Entanglement:

@@ -2,16 +2,13 @@ from typing import Union, Any
 
 from . import Wave
 from ubiquity.exceptions import WaveParseError
-from ubiquity.logger import get_logger
-
-
-logger = get_logger()
+from ubiquity.types import ShoeboxIF
 
 
 class FieldRequestWave(Wave):
     _utype = '__field_request_wave__'
 
-    def __init__(self, shoebox: Union['Shoebox', None], object_id: int, field_name: str):
+    def __init__(self, shoebox: Union[ShoeboxIF, None], object_id: int, field_name: str):
         super().__init__(shoebox)
         self._object_id = object_id
         self._field_name = field_name
@@ -24,7 +21,7 @@ class FieldRequestWave(Wave):
     def field_name(self) -> str:
         return self._field_name
 
-    def apply(self, shoebox: Union[None, 'Shoebox']) -> Union[None, 'Wave']:
+    def hit(self, shoebox: Union[None, ShoeboxIF]) -> Union[None, Wave]:
         pass
 
     def _serialize(self) -> dict:
@@ -53,7 +50,7 @@ class FieldRequestWave(Wave):
 class FieldResponseWave(Wave):
     _utype = '__field_response_wave__'
 
-    def __init__(self, shoebox: Union['Shoebox', None], request_wave: str, field_value: Any):
+    def __init__(self, shoebox: Union[ShoeboxIF, None], request_wave: str, field_value: Any):
         super().__init__(shoebox)
         self._request_wave = request_wave
         self._field_value = field_value
@@ -66,7 +63,7 @@ class FieldResponseWave(Wave):
     def field_value(self) -> Any:
         return self._field_value
 
-    def apply(self, shoebox: Union[None, 'Shoebox']) -> Union[None, 'Wave']:
+    def hit(self, shoebox: Union[None, ShoeboxIF]) -> Union[None, Wave]:
         pass
 
     def _serialize(self) -> dict:

@@ -1,19 +1,16 @@
 import asyncio
 import websockets
-from abc import abstractmethod
+from abc import ABC
 from websockets import WebSocketCommonProtocol
 from websockets.exceptions import ConnectionClosedError
 
 from . import Tunnel
 from ubiquity.waves import Wave
 from ubiquity.waves.shoebox import ShoeboxWave
-from ubiquity.logger import get_logger
+from ubiquity.logger import logger
 
 
-logger = get_logger()
-
-
-class WebSocketTunnel(Tunnel):
+class WebSocketTunnel(Tunnel, ABC):
 
     def __init__(self):
         super().__init__()
@@ -38,10 +35,6 @@ class WebSocketTunnel(Tunnel):
                     await client.send(res.serialize())
         except ConnectionClosedError:
             pass
-
-    @abstractmethod
-    async def _send_wave(self, wave_raw: str):
-        raise NotImplementedError('Method "_send_wave" not implemented in WebSocketTunnel class')
 
 
 class WebSocketServerTunnel(WebSocketTunnel):
@@ -101,5 +94,3 @@ class WebSocketClientTunnel(WebSocketTunnel):
         return '{:s}({:s}:{:d})'.format(
             self.__class__.__name__, self._server_host, self._server_port
         )
-
-

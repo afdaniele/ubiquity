@@ -3,12 +3,12 @@
     "__type__": "__shoebox__",
     "__data__": {
         "__name__": "general",
-        "__quanta__": {
-            "139807863760168": {
+        "__quanta__": [
+            {
                 "__ubiquity_object__": 1,
                 "__type__": "__stub__",
                 "__data__": {
-                    "__id__": 139807863760168,
+                    "__id__": 4459082520,
                     "__fields__": [
                         {
                             "__ubiquity_object__": 1,
@@ -107,6 +107,14 @@
                             "__ubiquity_object__": 1,
                             "__type__": "__method__",
                             "__data__": {
+                                "__name__": "__dir__",
+                                "__args__": []
+                            }
+                        },
+                        {
+                            "__ubiquity_object__": 1,
+                            "__type__": "__method__",
+                            "__data__": {
                                 "__name__": "__eq__",
                                 "__args__": [
                                     {
@@ -114,6 +122,25 @@
                                         "__type__": "__parameter__",
                                         "__data__": {
                                             "__name__": "value",
+                                            "__type__": "__positional__",
+                                            "__annotation__": "__NOTSET__",
+                                            "__default__": "__NOTSET__"
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "__ubiquity_object__": 1,
+                            "__type__": "__method__",
+                            "__data__": {
+                                "__name__": "__format__",
+                                "__args__": [
+                                    {
+                                        "__ubiquity_object__": 1,
+                                        "__type__": "__parameter__",
+                                        "__data__": {
+                                            "__name__": "format_spec",
                                             "__type__": "__positional__",
                                             "__annotation__": "__NOTSET__",
                                             "__default__": "__NOTSET__"
@@ -183,35 +210,6 @@
                             "__ubiquity_object__": 1,
                             "__type__": "__method__",
                             "__data__": {
-                                "__name__": "__init__",
-                                "__args__": [
-                                    {
-                                        "__ubiquity_object__": 1,
-                                        "__type__": "__parameter__",
-                                        "__data__": {
-                                            "__name__": "args",
-                                            "__type__": "__var_positional__",
-                                            "__annotation__": "__NOTSET__",
-                                            "__default__": "__NOTSET__"
-                                        }
-                                    },
-                                    {
-                                        "__ubiquity_object__": 1,
-                                        "__type__": "__parameter__",
-                                        "__data__": {
-                                            "__name__": "kwargs",
-                                            "__type__": "__var_keyword__",
-                                            "__annotation__": "__NOTSET__",
-                                            "__default__": "__NOTSET__"
-                                        }
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            "__ubiquity_object__": 1,
-                            "__type__": "__method__",
-                            "__data__": {
                                 "__name__": "__le__",
                                 "__args__": [
                                     {
@@ -269,37 +267,19 @@
                             "__ubiquity_object__": 1,
                             "__type__": "__method__",
                             "__data__": {
-                                "__name__": "__new__",
+                                "__name__": "__reduce_ex__",
                                 "__args__": [
                                     {
                                         "__ubiquity_object__": 1,
                                         "__type__": "__parameter__",
                                         "__data__": {
-                                            "__name__": "args",
-                                            "__type__": "__var_positional__",
-                                            "__annotation__": "__NOTSET__",
-                                            "__default__": "__NOTSET__"
-                                        }
-                                    },
-                                    {
-                                        "__ubiquity_object__": 1,
-                                        "__type__": "__parameter__",
-                                        "__data__": {
-                                            "__name__": "kwargs",
-                                            "__type__": "__var_keyword__",
+                                            "__name__": "protocol",
+                                            "__type__": "__positional__",
                                             "__annotation__": "__NOTSET__",
                                             "__default__": "__NOTSET__"
                                         }
                                     }
                                 ]
-                            }
-                        },
-                        {
-                            "__ubiquity_object__": 1,
-                            "__type__": "__method__",
-                            "__data__": {
-                                "__name__": "__repr__",
-                                "__args__": []
                             }
                         },
                         {
@@ -335,7 +315,7 @@
                             "__ubiquity_object__": 1,
                             "__type__": "__method__",
                             "__data__": {
-                                "__name__": "__str__",
+                                "__name__": "__sizeof__",
                                 "__args__": []
                             }
                         },
@@ -420,11 +400,11 @@
                     ]
                 }
             },
-            "139807864422696": {
+            {
                 "__ubiquity_object__": 1,
                 "__type__": "__stub__",
                 "__data__": {
-                    "__id__": 139807864422696,
+                    "__id__": 4453201120,
                     "__fields__": [
                         {
                             "__ubiquity_object__": 1,
@@ -580,6 +560,14 @@
                             "__ubiquity_object__": 1,
                             "__type__": "__method__",
                             "__data__": {
+                                "__name__": "__dir__",
+                                "__args__": []
+                            }
+                        },
+                        {
+                            "__ubiquity_object__": 1,
+                            "__type__": "__method__",
+                            "__data__": {
                                 "__name__": "__eq__",
                                 "__args__": [
                                     {
@@ -587,6 +575,25 @@
                                         "__type__": "__parameter__",
                                         "__data__": {
                                             "__name__": "value",
+                                            "__type__": "__positional__",
+                                            "__annotation__": "__NOTSET__",
+                                            "__default__": "__NOTSET__"
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "__ubiquity_object__": 1,
+                            "__type__": "__method__",
+                            "__data__": {
+                                "__name__": "__format__",
+                                "__args__": [
+                                    {
+                                        "__ubiquity_object__": 1,
+                                        "__type__": "__parameter__",
+                                        "__data__": {
+                                            "__name__": "format_spec",
                                             "__type__": "__positional__",
                                             "__annotation__": "__NOTSET__",
                                             "__default__": "__NOTSET__"
@@ -664,55 +671,6 @@
                             "__ubiquity_object__": 1,
                             "__type__": "__method__",
                             "__data__": {
-                                "__name__": "__init__",
-                                "__args__": [
-                                    {
-                                        "__ubiquity_object__": 1,
-                                        "__type__": "__parameter__",
-                                        "__data__": {
-                                            "__name__": "camera",
-                                            "__type__": "__default__",
-                                            "__annotation__": "__NOTSET__",
-                                            "__default__": "detect"
-                                        }
-                                    },
-                                    {
-                                        "__ubiquity_object__": 1,
-                                        "__type__": "__parameter__",
-                                        "__data__": {
-                                            "__name__": "ip_address",
-                                            "__type__": "__default__",
-                                            "__annotation__": "__NOTSET__",
-                                            "__default__": "10.5.5.9"
-                                        }
-                                    },
-                                    {
-                                        "__ubiquity_object__": 1,
-                                        "__type__": "__parameter__",
-                                        "__data__": {
-                                            "__name__": "mac_address",
-                                            "__type__": "__default__",
-                                            "__annotation__": "__NOTSET__",
-                                            "__default__": "AA:BB:CC:DD:EE:FF"
-                                        }
-                                    },
-                                    {
-                                        "__ubiquity_object__": 1,
-                                        "__type__": "__parameter__",
-                                        "__data__": {
-                                            "__name__": "debug",
-                                            "__type__": "__default__",
-                                            "__annotation__": "__NOTSET__",
-                                            "__default__": true
-                                        }
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            "__ubiquity_object__": 1,
-                            "__type__": "__method__",
-                            "__data__": {
                                 "__name__": "__le__",
                                 "__args__": [
                                     {
@@ -770,37 +728,27 @@
                             "__ubiquity_object__": 1,
                             "__type__": "__method__",
                             "__data__": {
-                                "__name__": "__new__",
-                                "__args__": [
-                                    {
-                                        "__ubiquity_object__": 1,
-                                        "__type__": "__parameter__",
-                                        "__data__": {
-                                            "__name__": "args",
-                                            "__type__": "__var_positional__",
-                                            "__annotation__": "__NOTSET__",
-                                            "__default__": "__NOTSET__"
-                                        }
-                                    },
-                                    {
-                                        "__ubiquity_object__": 1,
-                                        "__type__": "__parameter__",
-                                        "__data__": {
-                                            "__name__": "kwargs",
-                                            "__type__": "__var_keyword__",
-                                            "__annotation__": "__NOTSET__",
-                                            "__default__": "__NOTSET__"
-                                        }
-                                    }
-                                ]
+                                "__name__": "__reduce__",
+                                "__args__": []
                             }
                         },
                         {
                             "__ubiquity_object__": 1,
                             "__type__": "__method__",
                             "__data__": {
-                                "__name__": "__repr__",
-                                "__args__": []
+                                "__name__": "__reduce_ex__",
+                                "__args__": [
+                                    {
+                                        "__ubiquity_object__": 1,
+                                        "__type__": "__parameter__",
+                                        "__data__": {
+                                            "__name__": "protocol",
+                                            "__type__": "__positional__",
+                                            "__annotation__": "__NOTSET__",
+                                            "__default__": "__NOTSET__"
+                                        }
+                                    }
+                                ]
                             }
                         },
                         {
@@ -836,7 +784,7 @@
                             "__ubiquity_object__": 1,
                             "__type__": "__method__",
                             "__data__": {
-                                "__name__": "__str__",
+                                "__name__": "__sizeof__",
                                 "__args__": []
                             }
                         },
@@ -2078,10 +2026,10 @@
                     ]
                 }
             }
-        },
+        ],
         "__objects__": {
-            "sn": 139807863760168,
-            "gopro": 139807864422696
+            "sn": 4459082520,
+            "gopro": 4453201120
         }
     }
 }

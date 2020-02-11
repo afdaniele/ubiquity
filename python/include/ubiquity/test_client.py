@@ -5,7 +5,6 @@ from ubiquity.tunnel.websocket import WebSocketClientTunnel
 
 def run_from_ipython():
     try:
-        # noinspection PyStatementEffect
         __IPYTHON__
         return True
     except NameError:

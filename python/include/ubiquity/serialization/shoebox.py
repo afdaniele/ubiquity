@@ -17,7 +17,15 @@ from ubiquity.types import \
 
 from ubiquity import Shoebox
 from ubiquity.exceptions import JSONParseError
-from ubiquity.stubs import QuantumStub, QuantumStubBuilder
+from ubiquity.stubs import QuantumStubBuilder
+from ubiquity.types import QuantumStub
+
+EXCLUDED_METHODS = [
+    '__new__',
+    '__repr__',
+    '__str__',
+    '__init__'
+]
 
 
 def serialize_shoebox(sb: Shoebox) -> dict:
@@ -35,6 +43,8 @@ def serialize_shoebox(sb: Shoebox) -> dict:
             stub.add_field(field)
         # add methods to stub
         for method_name, method_callable in getmembers(quantum, callable):
+            if method_name in EXCLUDED_METHODS:
+                continue
             try:
                 method_signature = signature(method_callable)
             except ValueError:
@@ -62,9 +72,7 @@ def serialize_shoebox(sb: Shoebox) -> dict:
         '__type__': '__shoebox__',
         '__data__': {
             '__name__': sb.name,
-            '__quanta__': {
-                i: o.serialize() for i, o in _quanta.items()
-            },
+            '__quanta__': list(map(lambda q: q.serialize(), _quanta.values())),
             '__objects__': sb.objects
         }
     }
@@ -82,22 +90,28 @@ def deserialize_shoebox(shoebox_raw: Union[str, Dict]) -> Shoebox:
     shoebox_raw = shoebox_raw['__data__']
     shoebox = Shoebox(shoebox_raw['__name__'])
     # parse quanta
-    for quantum_id, quantum in shoebox_raw['__quanta__']:
+    for quantum in shoebox_raw['__quanta__']:
         quantum = quantum['__data__']
+        quantum_id = quantum['__id__']
         stub = QuantumStubBuilder(shoebox, quantum_id)
         # parse fields
         # TODO: validate quantum['__fields__']
-        for field_name, field_data in quantum['__fields__']['__data__']:
+        for field_data in quantum['__fields__']:
+            field_data = field_data['__data__']
+            field_name = field_data['__name__']
             field = Field(field_name, field_data['__type__'])
             stub.add_field(field)
         # parse methods
         # TODO: validate quantum['__methods__']
-        for method_name, method_data in quantum['__methods__']['__data__']:
+        for method_data in quantum['__methods__']:
+            method_data = method_data['__data__']
+            method_name = method_data['__name__']
+            method_args = method_data['__args__']
             args = []
-            _args = method_data['__args__']
-            for arg_name, arg_data in _args:
+            for arg_data in method_args:
+                arg_data = arg_data['__data__']
                 args.append(Parameter(
-                    arg_name,
+                    arg_data['__name__'],
                     arg_data['__type__'],
                     arg_data['__annotation__'],
                     arg_data['__default__']
@@ -107,10 +121,7 @@ def deserialize_shoebox(shoebox_raw: Union[str, Dict]) -> Shoebox:
         # add stub to shoebox
         shoebox.register_quantum(stub.compile())
     # parse objects
-    for object_name, object_id in shoebox_raw['__objects__']:
+    for object_name, object_id in shoebox_raw['__objects__'].items():
         shoebox.name_quantum(object_name, object_id)
     # return newly built shoebox
     return shoebox
-
-
-
