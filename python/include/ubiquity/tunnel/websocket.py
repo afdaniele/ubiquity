@@ -1,11 +1,16 @@
 import asyncio
 import websockets
-from ubiquity import ulogger
-from ubiquity.wave import Wave, ShoeboxWave
 from abc import abstractmethod
 from websockets import WebSocketCommonProtocol
 from websockets.exceptions import ConnectionClosedError
+
 from . import Tunnel
+from ubiquity.waves import Wave
+from ubiquity.waves.shoebox import ShoeboxWave
+from ubiquity.logger import get_logger
+
+
+logger = get_logger()
 
 
 class WebSocketTunnel(Tunnel):
@@ -23,7 +28,7 @@ class WebSocketTunnel(Tunnel):
             async for wave_raw in client:
                 # nothing to do if this tunnel is not connected to a shoebox
                 if self._shoebox is None:
-                    ulogger.debug('Tunnel[{:s}]: Received a wave from {:s}.'.format(
+                    logger.debug('Tunnel[{:s}]: Received a wave from {:s}.'.format(
                                     str(self), str(client.remote_address)
                                 ) + ' Dropped, tunnel not attached to any shoeboxes.')
                     continue
@@ -73,8 +78,16 @@ class WebSocketClientTunnel(WebSocketTunnel):
         self._server_port = server_port
         self._socket = None
         self._uri = 'ws://{:s}:{:d}'.format(self._server_host, self._server_port)
-        self._socket = asyncio.get_event_loop().run_until_complete(websockets.connect(self._uri))
-        asyncio.get_event_loop().create_task(self._run())
+        asyncio.get_event_loop().create_task(self._connect())
+
+    async def _connect(self):
+        while True:
+            try:
+                self._socket = await websockets.connect(self._uri)
+                asyncio.get_event_loop().create_task(self._run())
+                break
+            except ConnectionRefusedError:
+                await asyncio.sleep(1.0)
 
     async def _run(self):
         await self._handle_connection(self._socket)

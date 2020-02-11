@@ -1,31 +1,12 @@
-import json
 from typing import Any, Dict, Union
-from inspect import \
-    getmembers, \
-    signature, \
-    _empty, \
-    _ParameterKind
-from collections import OrderedDict
-from .exceptions import JSONParseError
-from enum import Enum
 import asyncio
 
-StubID = int
-FieldType = Any
-ParameterType = Union[
-    '__default__',
-    '__positional__',
-    '__keyword__',
-    '__var_positional__',
-    '__var_keyword__'
-]
-ArgumentType = Any
-NOTSET = "__NOTSET__"
+from .types import QuantumID
+from .tunnel import Tunnel
 
-
-class AccessMode(Enum):
-    PUBLIC_ONLY = 1
-    PERMISSIVE = 2
+# class AccessMode(Enum):
+#     PUBLIC_ONLY = 1
+#     PERMISSIVE = 2
 
 
 class ShoeboxContent:
@@ -33,7 +14,6 @@ class ShoeboxContent:
 
 
 class Shoebox:
-    _utype = '__shoebox__'
 
     def __init__(self, name: str):
         self._name = name
@@ -42,8 +22,17 @@ class Shoebox:
         self._objects = {}
         self._content = ShoeboxContent()
 
+    @property
     def name(self):
         return self._name
+
+    @property
+    def quanta(self):
+        return self._quanta
+
+    @property
+    def objects(self):
+        return self._objects
 
     @property
     def content(self):
@@ -53,48 +42,25 @@ class Shoebox:
     def join():
         asyncio.get_event_loop().run_forever()
 
-    def add(self, name: str, obj: Any, access: AccessMode = AccessMode.PUBLIC_ONLY) -> StubID:
+    def register_quantum(self, obj: Any) -> QuantumID:
+        if obj is None:
+            raise ValueError('None not supported as quantum object')
+        # get ID of the object
+        quantum_id = id(obj)
+        # add quantum
+        self._quanta[quantum_id] = obj
+        return quantum_id
+
+    def name_quantum(self, name: str, quantum_id: QuantumID):
         if not name.isidentifier():
             raise ValueError('The name "{:s}" is not a valid identifier for the object' % name)
-        stub_id = id(obj)
-        # create stub for the object
-        stub = Stub(stub_id)
-        # add fields to stub
-        for field_name, field_value in getmembers(obj, lambda m: not callable(m)):
-            if access == AccessMode.PUBLIC_ONLY and field_name.startswith('_'):
-                continue
-            field_type = type(field_value)
-            field = Field(field_name, field_type)
-            stub.add_field(field)
-        # add methods to stub
-        for method_name, method_callable in getmembers(obj, callable):
-            if access == AccessMode.PUBLIC_ONLY and method_name.startswith('_'):
-                continue
-            try:
-                method_signature = signature(method_callable)
-            except ValueError:
-                continue
-            method_args = OrderedDict()
-            for arg_name, arg_info in method_signature.parameters.items():
-                arg_type = {
-                    _ParameterKind.POSITIONAL_OR_KEYWORD: '__default__',
-                    _ParameterKind.POSITIONAL_ONLY: '__positional__',
-                    _ParameterKind.VAR_POSITIONAL: '__var_positional__',
-                    _ParameterKind.KEYWORD_ONLY: '__keyword__',
-                    _ParameterKind.VAR_KEYWORD: '__var_keyword__',
-                }[arg_info.kind]
-                arg_annotation = arg_info.annotation if arg_info.annotation != _empty else NOTSET
-                arg_default = arg_info.default if arg_info.default != _empty else NOTSET
-                arg = Parameter(arg_name, arg_type, arg_annotation, arg_default)
-                method_args[arg_name] = arg
-            method = Method(method_name, method_args)
-            stub.add_method(method)
-        # add object to stub
-        self._quanta[stub_id] = stub
-        self._objects[name] = stub_id
-        setattr(self._content, name, stub)
-        # return object ID
-        return stub_id
+        self._objects[name] = quantum_id
+
+    def add(self, name: str, obj: Any):
+        if not name.isidentifier():
+            raise ValueError('The name "{:s}" is not a valid identifier for the object' % name)
+        quantum_id = self.register_quantum(obj)
+        self.name_quantum(name, quantum_id)
 
     def attach(self, tunnel: 'Tunnel'):
         self._tunnels.append(tunnel)
@@ -105,145 +71,17 @@ class Shoebox:
         self._tunnels.remove(tunnel)
 
     def serialize(self) -> dict:
-        return {
-            '__ubiquity_object__': 1,
-            '__type__': self._utype,
-            '__.name__': self._name,
-            '__.quanta__': {
-                i: o.serialize() for i, o in self._quanta.items()
-            },
-            '__.objects__': self._objects
-        }
+        from .serialization import serialize_shoebox
+        return serialize_shoebox(self)
 
     @staticmethod
-    def from_json(shoebox_raw: Union[str, Dict]) -> 'Shoebox':
-        if isinstance(shoebox_raw, str):
-            shoebox_raw = json.loads(shoebox_raw)
-        if '__ubiquity_object__' not in shoebox_raw or \
-                shoebox_raw['__ubiquity_object__'] != 1 or \
-                '__type__' not in shoebox_raw or \
-                shoebox_raw['__type__'] != Shoebox._utype:
-            raise JSONParseError('The given JSON string does not contain a valid Shoebox description')
-        # ---
-        shoebox = Shoebox(shoebox_raw['__.name__'])
-        # TODO: parse quanta
-        # TODO: parse objects
-        return shoebox
+    def deserialize(shoebox_raw: Union[str, Dict]) -> 'Shoebox':
+        from .serialization import deserialize_shoebox
+        return deserialize_shoebox(shoebox_raw)
 
 
-class Field:
-    _utype = '__field__'
-
-    def __init__(self, name: str, ftype: FieldType):
-        self._name = name
-        self._type = ftype
-
-    def get_name(self) -> str:
-        return self._name
-
-    def get_type(self) -> FieldType:
-        return self._type
-
-    def serialize(self):
-        return {
-            '__ubiquity_object__': 1,
-            '__type__': self._utype,
-            '__.name__': self._name,
-            '__.type__': str(self._type)
-        }
 
 
-class Parameter:
-    _utype = '__parameter__'
-
-    def __init__(self, name: str, ptype: ParameterType, annotation: Any, default: Any):
-        self._name = name
-        self._type = ptype
-        self._annotation = annotation
-        self._default = default
-
-    def get_name(self) -> str:
-        return self._name
-
-    def get_type(self) -> ParameterType:
-        return self._type
-
-    def get_annotation(self) -> Any:
-        return self._annotation
-
-    def get_default(self) -> Any:
-        return self._default
-
-    def serialize(self):
-        return {
-            '__ubiquity_object__': 1,
-            '__type__': self._utype,
-            '__.name__': self._name,
-            '__.type__': str(self._type),
-            '__.annotation__': str(self._annotation),
-            '__.default__': self._default
-        }
-
-
-class Method:
-    _utype = '__method__'
-
-    def __init__(self, name: str, args: Dict[str, Parameter]):
-        self._name = name
-        self._args = args
-
-    def get_name(self) -> str:
-        return self._name
-
-    def get_args(self) -> Dict[str, Parameter]:
-        return self._args
-
-    def serialize(self):
-        return {
-            '__ubiquity_object__': 1,
-            '__type__': self._utype,
-            '__.name__': self._name,
-            '__.args__': OrderedDict([
-                (k, v.serialize()) for k, v in self._args.items()
-            ])
-        }
-
-
-class Stub:
-    _utype = '__stub__'
-
-    def __init__(self, sid: int):
-        self._id = sid
-        self._fields = {}
-        self._methods = {}
-
-    def get_id(self) -> int:
-        return self._id
-
-    def get_fields(self) -> Dict[str, Field]:
-        return self._fields
-
-    def get_methods(self) -> Dict[str, Method]:
-        return self._methods
-
-    def add_field(self, field: Field):
-        self._fields[field.get_name()] = field
-
-    def add_method(self, method: Method):
-        self._methods[method.get_name()] = method
-
-    def serialize(self):
-        return {
-            '__ubiquity_object__': 1,
-            '__type__': self._utype,
-            '__.id__': self._id,
-            '__.fields__': OrderedDict([
-                (k, v.serialize()) for k, v in self._fields.items()
-            ]),
-            '__.methods__': OrderedDict([
-                (k, v.serialize()) for k, v in self._methods.items()
-            ])
-        }
 
 # > Entanglement:
 # The phenomenon in quantum theory whereby particles that interact with each other become

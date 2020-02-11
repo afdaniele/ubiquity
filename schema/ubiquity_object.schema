@@ -1,0 +1,13 @@
+{
+  "type": "object",
+  "properties": {
+    "__ubiquity_object__" : {
+      "type": "number",
+      "value": 1
+    },
+    "__type__": {
+      "type": "string",
+      "values": []
+    }
+  }
+}
