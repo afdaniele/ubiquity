@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+message ShoeboxPB {
+  string name = 1;
+  repeated QuantumPB quanta = 2;
+}
+
+message QuantumPB {
+
+}

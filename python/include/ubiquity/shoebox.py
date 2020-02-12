@@ -3,6 +3,8 @@ from typing import Any, Dict, Union
 from .types import QuantumID, ShoeboxIF
 from .tunnel import Tunnel
 
+from ubiquity.serialization.Shoebox_pb2 import ShoeboxPB
+
 
 class Shoebox(ShoeboxIF):
 
@@ -38,13 +40,13 @@ class Shoebox(ShoeboxIF):
         tunnel.detach()
         self._tunnels.remove(tunnel)
 
-    def serialize(self) -> dict:
-        from .serialization import serialize_shoebox
+    def serialize(self) -> ShoeboxPB:
+        from .serialization.shoebox import serialize_shoebox
         return serialize_shoebox(self)
 
     @staticmethod
     def deserialize(shoebox_raw: Union[str, Dict]) -> 'Shoebox':
-        from .serialization import deserialize_shoebox
+        from .serialization.shoebox import deserialize_shoebox
         return deserialize_shoebox(shoebox_raw)
 
 

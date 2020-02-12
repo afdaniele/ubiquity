@@ -1,6 +1,10 @@
 from typing import Any, Union, Iterable, Dict
 from abc import abstractmethod
 
+from ubiquity.serialization.Shoebox_pb2 import QuantumPB
+from ubiquity.serialization.Shoebox_pb2 import ShoeboxPB
+from ubiquity.serialization.Wave_pb2 import WavePB
+
 
 QuantumID = int
 FieldType = Any
@@ -68,7 +72,7 @@ class ShoeboxIF:
         raise NotImplementedError()
 
     @abstractmethod
-    def serialize(self) -> dict:
+    def serialize(self) -> ShoeboxPB:
         raise NotImplementedError()
 
     @staticmethod
@@ -116,34 +120,38 @@ class TunnelIF:
 
 
 class WaveIF:
-    _utype = None
 
-    def __init__(self, shoebox: Union[ShoeboxIF, None]):
+    def __init__(self, shoebox: Union[ShoeboxIF, None], request_wave: Union[str, None]):
         self._shoebox = shoebox
-
-    @property
-    def utype(self) -> str:
-        return self._utype
+        self._request_wave = request_wave
 
     @property
     def shoebox(self) -> ShoeboxIF:
         return self._shoebox
+
+    @property
+    def request_wave(self) -> Union[str, None]:
+        return self._request_wave
 
     @abstractmethod
     def hit(self, shoebox: Union[None, ShoeboxIF]) -> Union[None, 'WaveIF']:
         raise NotImplementedError()
 
     @abstractmethod
-    def _serialize(self) -> dict:
+    def _serialize(self) -> Any:
         raise NotImplementedError()
 
     @staticmethod
     @abstractmethod
-    def deserialize(wave: dict) -> 'WaveIF':
+    def deserialize(wave_pb: Any) -> 'WaveIF':
         raise NotImplementedError()
 
     @abstractmethod
-    def serialize(self) -> str:
+    def serialize(self) -> WavePB:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def serialize_data(self) -> Any:
         raise NotImplementedError()
 
     @staticmethod
@@ -277,6 +285,7 @@ class Quantum:
         self._methods.append(method)
 
     def serialize(self):
+        return QuantumPB()
         return {
             '__ubiquity_object__': 1,
             '__type__': self._utype,

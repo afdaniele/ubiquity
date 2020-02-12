@@ -3,13 +3,19 @@ from typing import Union, Any
 from . import Wave
 from ubiquity.exceptions import WaveParseError
 from ubiquity.types import ShoeboxIF
+from ubiquity.serialization.Wave_pb2 import \
+    WavePB, \
+    FieldGetRequestPB, \
+    FieldGetResponsePB, \
+    FieldSetRequestPB, \
+    FieldSetResponsePB
 
 
-class FieldRequestWave(Wave):
-    _utype = '__field_request_wave__'
+class FieldGetRequestWave(Wave):
 
-    def __init__(self, shoebox: Union[ShoeboxIF, None], object_id: int, field_name: str):
-        super().__init__(shoebox)
+    def __init__(self, shoebox: Union[ShoeboxIF, None], request_wave: Union[str, None],
+                 object_id: int, field_name: str):
+        super().__init__(shoebox, request_wave)
         self._object_id = object_id
         self._field_name = field_name
 
@@ -24,40 +30,37 @@ class FieldRequestWave(Wave):
     def hit(self, shoebox: Union[None, ShoeboxIF]) -> Union[None, Wave]:
         pass
 
-    def _serialize(self) -> dict:
-        return {
-            '__ubiquity_object__': 1,
-            '__type__': '__field_access__',
-            '__data__': {
-                '__object__': self._object_id,
-                '__field_name__': self._field_name
-            }
-        }
+    def _serialize(self) -> FieldGetRequestPB:
+        wave_pb = FieldGetRequestPB()
+        wave_pb.field.object_id = self.object_id
+        wave_pb.field.field_name = self.field_name
+        return wave_pb
 
     @staticmethod
-    def deserialize(wave: dict) -> 'FieldRequestWave':
-        if not FieldRequestWave._is_wave(wave):
-            raise WaveParseError('The given object is not a __ubiquity_object__')
-        # parse wave
+    def deserialize(wave_pb: Union[WavePB, FieldGetRequestPB]) -> 'FieldGetRequestWave':
         try:
-            if wave['__type__'] != FieldRequestWave._utype:
-                raise WaveParseError('The given object is not a valid FieldRequestWave')
-            return FieldRequestWave(None, wave['__object__'], wave['__field_name__'])
-        except KeyError:
-            raise WaveParseError('The given object is not a valid FieldRequestWave')
+            if isinstance(wave_pb, FieldGetRequestPB):
+                return FieldGetRequestWave(
+                    None, None, wave_pb.field_get_request.field.object_id,
+                    wave_pb.field_get_request.field.field_name
+                )
+            if isinstance(wave_pb, WavePB):
+                return FieldGetRequestWave(
+                    wave_pb.header.shoebox,
+                    wave_pb.header.request_wave,
+                    wave_pb.field_get_request.field.object_id,
+                    wave_pb.field_get_request.field.field_name
+                )
+        except Exception:
+            raise WaveParseError()
 
 
-class FieldResponseWave(Wave):
-    _utype = '__field_response_wave__'
+class FieldGetResponseWave(Wave):
 
-    def __init__(self, shoebox: Union[ShoeboxIF, None], request_wave: str, field_value: Any):
-        super().__init__(shoebox)
-        self._request_wave = request_wave
+    def __init__(self, shoebox: Union[ShoeboxIF, None], request_wave: Union[str, None],
+                 field_value: Any):
+        super().__init__(shoebox, request_wave)
         self._field_value = field_value
-
-    @property
-    def request_wave(self) -> str:
-        return self._request_wave
 
     @property
     def field_value(self) -> Any:
@@ -66,25 +69,94 @@ class FieldResponseWave(Wave):
     def hit(self, shoebox: Union[None, ShoeboxIF]) -> Union[None, Wave]:
         pass
 
-    def _serialize(self) -> dict:
-        # TODO: self._field_value needs extra serialization (it might contain objects to reference)
-        return {
-            '__ubiquity_object__': 1,
-            '__type__': '__field_value__',
-            '__data__': {
-                '__request_wave__': self._request_wave,
-                '__data__': self._field_value
-            }
-        }
+    def _serialize(self) -> FieldGetResponsePB:
+        wave_pb = FieldGetResponsePB()
+        wave_pb.return_value = self._field_value
+        return wave_pb
 
     @staticmethod
-    def deserialize(wave: dict) -> 'FieldResponseWave':
-        if not FieldResponseWave._is_wave(wave):
-            raise WaveParseError('The given object is not a __ubiquity_object__')
-        # parse wave
+    def deserialize(wave_pb: Union[WavePB, FieldGetResponsePB]) -> 'FieldGetResponseWave':
         try:
-            if wave['__type__'] != FieldResponseWave._utype:
-                raise WaveParseError('The given object is not a valid FieldResponseWave')
-            return FieldResponseWave(None, wave['__request_wave__'], wave['__data__'])
-        except KeyError:
-            raise WaveParseError('The given object is not a valid FieldResponseWave')
+            if isinstance(wave_pb, FieldGetResponsePB):
+                return FieldGetResponseWave(None, None, wave_pb.field_get_response.return_value)
+            if isinstance(wave_pb, WavePB):
+                return FieldGetResponseWave(
+                    wave_pb.header.shoebox,
+                    wave_pb.header.request_wave,
+                    wave_pb.field_get_response.return_value
+                )
+        except Exception:
+            raise WaveParseError()
+
+
+class FieldSetRequestWave(Wave):
+
+    def __init__(self, shoebox: Union[ShoeboxIF, None], request_wave: Union[str, None],
+                 object_id: int, field_name: str, field_value: Any):
+        super().__init__(shoebox, request_wave)
+        self._object_id = object_id
+        self._field_name = field_name
+        self._field_value = field_value
+
+    @property
+    def object_id(self) -> int:
+        return self._object_id
+
+    @property
+    def field_name(self) -> str:
+        return self._field_name
+
+    @property
+    def field_value(self) -> Any:
+        return self._field_value
+
+    def hit(self, shoebox: Union[None, ShoeboxIF]) -> Union[None, Wave]:
+        pass
+
+    def _serialize(self) -> FieldSetRequestPB:
+        wave_pb = FieldSetRequestPB()
+        wave_pb.field.object_id = self.object_id
+        wave_pb.field.field_name = self.field_name
+        wave_pb.field.field_value = self.field_value
+        return wave_pb
+
+    @staticmethod
+    def deserialize(wave_pb: Union[WavePB, FieldSetRequestPB]) -> 'FieldSetRequestWave':
+        try:
+            if isinstance(wave_pb, FieldSetRequestPB):
+                return FieldSetRequestWave(
+                    None, None, wave_pb.field_set_request.field.object_id,
+                    wave_pb.field_set_request.field.field_name, wave_pb.field_value
+                )
+            if isinstance(wave_pb, WavePB):
+                return FieldSetRequestWave(
+                    wave_pb.header.shoebox,
+                    wave_pb.header.request_wave,
+                    wave_pb.field_set_request.field.object_id,
+                    wave_pb.field_set_request.field.field_name,
+                    wave_pb.field_value
+                )
+        except Exception:
+            raise WaveParseError()
+
+
+class FieldSetResponseWave(Wave):
+
+    def __init__(self, shoebox: Union[ShoeboxIF, None], request_wave: Union[ShoeboxIF, None]):
+        super().__init__(shoebox, request_wave)
+
+    def hit(self, shoebox: Union[None, ShoeboxIF]) -> Union[None, Wave]:
+        pass
+
+    def _serialize(self) -> FieldSetResponsePB:
+        return FieldSetResponsePB()
+
+    @staticmethod
+    def deserialize(wave_pb: Union[WavePB, FieldSetResponsePB]) -> 'FieldSetResponseWave':
+        try:
+            if isinstance(wave_pb, FieldSetResponsePB):
+                return FieldSetResponseWave(None, None)
+            if isinstance(wave_pb, WavePB):
+                return FieldSetResponseWave(wave_pb.header.shoebox, wave_pb.header.request_wave)
+        except Exception:
+            raise WaveParseError()

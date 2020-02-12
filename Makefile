@@ -1,10 +1,11 @@
-ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
+DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))/../
+ROOT_DIR:=$(realpath ${DIR})
 
 .PHONY: protobuf
 
 protobuf:
-	find ${ROOT_DIR}/protobuf/*.proto -exec \
+	find ${ROOT_DIR}/ubiquity/serialization/*.proto -exec \
 		protoc \
-			-I="${ROOT_DIR}/protobuf/" \
-			--python_out="${ROOT_DIR}/python/include/ubiquity/serialization" \
+			-I="${ROOT_DIR}" \
+			--python_out="${ROOT_DIR}/ubiquity/python/include" \
 			{} \;

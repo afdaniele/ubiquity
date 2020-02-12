@@ -5,7 +5,7 @@ from abc import ABC
 from ubiquity.logger import logger
 from ubiquity.exceptions import WaveParseError
 from ubiquity.waves import Wave
-from ubiquity.waves.error import ErrorResponseWave
+from ubiquity.waves.error import ErrorWave
 from ubiquity.types import TunnelIF, ShoeboxIF
 
 
@@ -37,7 +37,7 @@ class Tunnel(TunnelIF, ABC):
         except (json.JSONDecodeError, WaveParseError):
             ex_type, ex_value, ex_traceback = sys.exc_info()
             logger.debug('Tunnel[{:s}]: Received invalid wave.'.format(str(self)))
-            return ErrorResponseWave.from_exception(None, ex_type, ex_value, ex_traceback)
+            return ErrorWave.from_exception(None, ex_type, ex_value, ex_traceback)
         # we have a valid wave, apply and get result
         return wave.hit(self._shoebox)
 

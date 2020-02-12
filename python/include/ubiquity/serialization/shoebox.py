@@ -20,6 +20,8 @@ from ubiquity.exceptions import JSONParseError
 from ubiquity.stubs import QuantumStubBuilder
 from ubiquity.types import QuantumStub
 
+from .Shoebox_pb2 import ShoeboxPB
+
 EXCLUDED_METHODS = [
     '__new__',
     '__repr__',
@@ -28,7 +30,8 @@ EXCLUDED_METHODS = [
 ]
 
 
-def serialize_shoebox(sb: Shoebox) -> dict:
+def serialize_shoebox(sb: Shoebox) -> ShoeboxPB:
+    shoebox_pb = ShoeboxPB()
     _quanta = {}
     for quantum_id, quantum in sb.quanta.items():
         # do not serialize stubs
@@ -66,16 +69,9 @@ def serialize_shoebox(sb: Shoebox) -> dict:
             stub.add_method(method)
         # add stub to shoebox
         _quanta[quantum_id] = stub
+        shoebox_pb.quanta.append(stub.serialize())
     # return serialized shoebox
-    return {
-        '__ubiquity_object__': 1,
-        '__type__': '__shoebox__',
-        '__data__': {
-            '__name__': sb.name,
-            '__quanta__': list(map(lambda q: q.serialize(), _quanta.values())),
-            '__objects__': sb.objects
-        }
-    }
+    return shoebox_pb
 
 
 def deserialize_shoebox(shoebox_raw: Union[str, Dict]) -> Shoebox:

@@ -1,4 +1,7 @@
 from ubiquity import Shoebox
+from ubiquity.waves.shoebox import ShoeboxWave
+
+from google.protobuf.text_format import MessageToString
 
 
 if __name__ == '__main__':
@@ -6,7 +9,7 @@ if __name__ == '__main__':
     from goprocam import GoProCamera
     from types import SimpleNamespace
 
-    goproCamera = GoProCamera.GoPro()
+    # goproCamera = GoProCamera.GoPro()
 
     def fcn(a, b: str, c: int, *args, **kwargs) -> int:
         return 1
@@ -25,11 +28,18 @@ if __name__ == '__main__':
     sbox = Shoebox('general')
 
     sbox.add('sn', a)
-    sbox.add('gopro', goproCamera)
+    # sbox.add('gopro', goproCamera)
 
-    json.dump(
-        sbox.serialize(),
-        open('./../../test.quark', 'w'),
-        indent=4,
-        sort_keys=False
-    )
+    wave = ShoeboxWave(sbox)
+
+    # Write the new address book back to disk.
+    f = open('./../../test.quark', 'wt')
+    f.write(MessageToString(wave.serialize()))
+    f.close()
+
+    # json.dump(
+    #     sbox.serialize(),
+    #     open('./../../test.quark', 'w'),
+    #     indent=4,
+    #     sort_keys=False
+    # )

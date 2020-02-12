@@ -4,10 +4,10 @@ from typing import Union
 from . import Wave
 from ubiquity.exceptions import WaveParseError
 from ubiquity.types import ShoeboxIF, WaveIF
+from ubiquity.serialization.Wave_pb2 import WavePB, ErrorPB
 
 
-class ErrorResponseWave(Wave):
-    _utype = '__error_response_wave__'
+class ErrorWave(Wave):
 
     def __init__(self,
                  shoebox: Union[ShoeboxIF, None],
@@ -15,15 +15,10 @@ class ErrorResponseWave(Wave):
                  etype: str,
                  emessage: str,
                  etrace: str):
-        super().__init__(shoebox)
-        self._request_wave = request_wave
+        super().__init__(shoebox, request_wave)
         self._error_type = etype
         self._error_message = emessage
         self._error_trace = etrace
-
-    @property
-    def request_wave(self) -> Union[str, None]:
-        return self._request_wave
 
     @property
     def error_type(self) -> str:
@@ -40,32 +35,33 @@ class ErrorResponseWave(Wave):
     def hit(self, shoebox: Union[None, ShoeboxIF]) -> Union[None, WaveIF]:
         return None
 
-    def _serialize(self) -> dict:
-        # TODO: self._error_trace needs extra serialization
-        return {
-            '__request_wave__': self._request_wave,
-            '__type__': self._error_type,
-            '__message__': self._error_message,
-            '__trace__': self._error_trace
-        }
+    def _serialize(self) -> ErrorPB:
+        return ErrorPB(
+            etype=self._error_type,
+            emessage=self._error_message,
+            etrace=self._error_trace
+        )
 
     @staticmethod
-    def deserialize(wave: dict) -> 'ErrorResponseWave':
-        if not ErrorResponseWave._is_wave(wave):
-            raise WaveParseError('The given object is not a __ubiquity_object__')
-        # parse wave
+    def deserialize(wave_pb: Union[WavePB, ErrorPB]) -> 'ErrorWave':
         try:
-            if wave['__type__'] != ErrorResponseWave._utype:
-                raise WaveParseError('The given object is not a valid ErrorResponseWave')
-            wave = wave['__data__']
-            return ErrorResponseWave(
-                None, wave['__request_wave__'], wave['__type__'], wave['__message__'], wave['__trace__']
-            )
-        except KeyError:
-            raise WaveParseError('The given object is not a valid ErrorResponseWave')
+            if isinstance(wave_pb, ErrorPB):
+                return ErrorWave(
+                    None, None, wave_pb.etype, wave_pb.emessage, wave_pb.etrace
+                )
+            if isinstance(wave_pb, WavePB):
+                return ErrorWave(
+                    wave_pb.header.shoebox,
+                    wave_pb.header.request_wave,
+                    wave_pb.error.etype,
+                    wave_pb.error.emessage,
+                    wave_pb.error.etrace
+                )
+        except:
+            raise WaveParseError()
 
     @staticmethod
     def from_exception(request_wave: Union[str, None], ex_type: BaseException,
-                       ex_value: Exception, ex_traceback: TracebackType) -> 'ErrorResponseWave':
+                       ex_value: Exception, ex_traceback: TracebackType) -> 'ErrorWave':
         # turn exception into an ErrorRespondeWave
-        return ErrorResponseWave(None, request_wave, str(ex_type), str(ex_value), str(ex_traceback))
+        return ErrorWave(None, request_wave, str(ex_type), str(ex_value), str(ex_traceback))

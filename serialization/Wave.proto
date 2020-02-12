@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+import "google/protobuf/any.proto";
+import "ubiquity/serialization/Shoebox.proto";
+import "ubiquity/serialization/Field.proto";
+import "ubiquity/serialization/Method.proto";
+
+message WavePB {
+  bool __ubiquity_object__ = 1;
+  enum Type {
+    SHOEBOX = 0;
+    FIELD_GETTER_REQUEST = 1;
+    FIELD_GETTER_RESPONSE = 2;
+    FIELD_SETTER_REQUEST = 3;
+    FIELD_SETTER_RESPONSE = 4;
+    METHOD_CALL_REQUEST = 5;
+    METHOD_CALL_RESPONSE = 6;
+    ERROR = 20;
+  }
+  Type type = 2;
+  WaveHeaderPB header = 3;
+  oneof data {
+    ShoeboxPB shoebox = 10;
+    FieldGetRequestPB field_get_request = 11;
+    FieldGetResponsePB field_get_response = 12;
+    FieldSetRequestPB field_set_request = 13;
+    FieldSetResponsePB field_set_response = 14;
+    MethodCallRequestPB method_call_request = 15;
+    MethodCallResponsePB method_call_response = 16;
+    ErrorPB error = 17;
+  }
+}
+
+
+message WaveHeaderPB {
+  string shoebox = 1;
+  string request_wave = 2;
+}
+
+
+message FieldGetRequestPB {
+  FieldPB field = 1;
+}
+
+
+message FieldGetResponsePB {
+  google.protobuf.Any return_value = 2;
+}
+
+
+message FieldSetRequestPB {
+  FieldPB field = 1;
+  google.protobuf.Any field_value = 2;
+}
+
+
+message FieldSetResponsePB {}
+
+
+message MethodCallRequestPB {
+  MethodPB method = 1;
+  repeated MethodArgumentPB arguments = 2;
+}
+
+
+message MethodCallResponsePB {
+  google.protobuf.Any return_value = 2;
+}
+
+
+message ErrorPB {
+  string etype = 1;
+  string emessage = 2;
+  string etrace = 3;
+}

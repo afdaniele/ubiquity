@@ -3,16 +3,16 @@ from typing import Dict, Union, Any
 from . import Wave
 from ubiquity.exceptions import WaveParseError
 from ubiquity.types import ShoeboxIF
-
+from ubiquity.serialization.Wave_pb2 import WavePB, MethodCallRequestPB, MethodCallResponsePB
 
 MethodArguments = Dict[str, Any]
 
 
 class MethodCallRequestWave(Wave):
-    _utype = '__method_call_request_wave__'
 
-    def __init__(self, shoebox: Union[ShoeboxIF, None], object_id: int, method_name: str, args: MethodArguments):
-        super().__init__(shoebox)
+    def __init__(self, shoebox: Union[ShoeboxIF, None], request_wave: Union[str, None],
+                 object_id: int, method_name: str, args: MethodArguments):
+        super().__init__(shoebox, request_wave)
         self._object_id = object_id
         self._method_name = method_name
         self._args = args
@@ -32,43 +32,43 @@ class MethodCallRequestWave(Wave):
     def hit(self, shoebox: Union[None, ShoeboxIF]) -> Union[None, Wave]:
         pass
 
-    def _serialize(self) -> dict:
-        # TODO: self._args needs extra serialization (it might contain referenced objects)
-        return {
-            '__ubiquity_object__': 1,
-            '__type__': '__method_call__',
-            '__data__': {
-                '__object__': self._object_id,
-                '__method_name__': self._method_name,
-                '__args__': self._args
-            }
-        }
+    def _serialize(self) -> MethodCallRequestPB:
+        wave_pb = MethodCallRequestPB()
+        wave_pb.method.shoebox_name = self.shoebox.name
+        wave_pb.method.object_id = self.object_id
+        wave_pb.method.method_name = self.method_name
+        # TODO: args
+        wave_pb.arguments = []
+        return wave_pb
 
     @staticmethod
-    def deserialize(wave: dict) -> 'MethodCallRequestWave':
-        if not MethodCallRequestWave._is_wave(wave):
-            raise WaveParseError('The given object is not a __ubiquity_object__')
-        # parse wave
+    def deserialize(wave_pb: Union[WavePB, MethodCallRequestPB]) -> 'MethodCallRequestWave':
         try:
-            if wave['__type__'] != MethodCallRequestWave._utype:
-                raise WaveParseError('The given object is not a valid MethodCallRequestWave')
-            return MethodCallRequestWave(None, wave['__object__'], wave['__method_name__'], wave['__args__'])
-        except KeyError:
-            raise WaveParseError('The given object is not a valid MethodCallRequestWave')
+            if isinstance(wave_pb, MethodCallRequestPB):
+                # TODO: args
+                return MethodCallRequestWave(
+                    None, None, wave_pb.method_call_request.method.object_id,
+                    wave_pb.method_call_request.method.method_name,
+                    {}
+                )
+            if isinstance(wave_pb, WavePB):
+                return MethodCallRequestWave(
+                    wave_pb.header.shoebox,
+                    wave_pb.header.request_wave,
+                    wave_pb.method_call_request.method.object_id,
+                    wave_pb.method_call_request.method.method_name,
+                    {}
+                )
+        except Exception:
+            raise WaveParseError()
 
 
 class MethodCallResponseWave(Wave):
 
-    _utype = '__method_call_response_wave__'
-
-    def __init__(self, shoebox: Union[ShoeboxIF, None], request_wave: str, return_value: Any):
-        super().__init__(shoebox)
-        self._request_wave = request_wave
+    def __init__(self, shoebox: Union[ShoeboxIF, None], request_wave: Union[str, None],
+                 return_value: Any):
+        super().__init__(shoebox, request_wave)
         self._return_value = return_value
-
-    @property
-    def request_wave(self) -> str:
-        return self._request_wave
 
     @property
     def return_value(self) -> Any:
@@ -77,25 +77,23 @@ class MethodCallResponseWave(Wave):
     def hit(self, shoebox: Union[None, ShoeboxIF]) -> Union[None, Wave]:
         pass
 
-    def _serialize(self) -> dict:
-        # TODO: self._return_value needs extra serialization (it might contain objects to reference)
-        return {
-            '__ubiquity_object__': 1,
-            '__type__': '__method_return__',
-            '__data__': {
-                '__request_wave__': self._request_wave,
-                '__data__': self._return_value
-            }
-        }
+    def _serialize(self) -> MethodCallResponsePB:
+        wave_pb = MethodCallResponsePB()
+        wave_pb.return_value = self.return_value
+        return wave_pb
 
     @staticmethod
-    def deserialize(wave: dict) -> 'MethodCallResponseWave':
-        if not MethodCallResponseWave._is_wave(wave):
-            raise WaveParseError('The given object is not a __ubiquity_object__')
-        # parse wave
+    def deserialize(wave_pb: Union[WavePB, MethodCallResponsePB]) -> 'MethodCallResponseWave':
         try:
-            if wave['__type__'] != MethodCallResponseWave._utype:
-                raise WaveParseError('The given object is not a valid MethodCallResponseWave')
-            return MethodCallResponseWave(None, wave['__request_wave__'], wave['__data__'])
-        except KeyError:
-            raise WaveParseError('The given object is not a valid MethodCallResponseWave')
+            if isinstance(wave_pb, MethodCallResponsePB):
+                return MethodCallResponseWave(
+                    None, None, wave_pb.method_call_response.return_value
+                )
+            if isinstance(wave_pb, WavePB):
+                return MethodCallResponseWave(
+                    wave_pb.header.shoebox,
+                    wave_pb.header.request_wave,
+                    wave_pb.method_call_response.return_value
+                )
+        except Exception:
+            raise WaveParseError()
