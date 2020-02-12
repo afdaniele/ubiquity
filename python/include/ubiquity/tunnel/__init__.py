@@ -1,12 +1,12 @@
 import sys
-import json
 from abc import ABC
 
 from ubiquity.logger import logger
-from ubiquity.exceptions import WaveParseError
 from ubiquity.waves import Wave
 from ubiquity.waves.error import ErrorWave
 from ubiquity.types import TunnelIF, ShoeboxIF
+
+from ubiquity.serialization.Wave_pb2 import WavePB, _WAVETYPEPB
 
 
 class Tunnel(TunnelIF, ABC):
@@ -30,11 +30,13 @@ class Tunnel(TunnelIF, ABC):
     def wave_in(self, wave_raw: str):
         # parse incoming data
         try:
-            wave = Wave.from_json(wave_raw)
+            wave_pb = WavePB()
+            wave_pb.ParseFromString(wave_raw)
+            wave = Wave.deserialize(wave_pb)
             logger.debug('Tunnel[{:s}]: Received wave of type {:s}.'.format(
-                str(self), wave.utype
+                str(self), _WAVETYPEPB.values_by_number[wave_pb.header.type].name
             ))
-        except (json.JSONDecodeError, WaveParseError):
+        except:
             ex_type, ex_value, ex_traceback = sys.exc_info()
             logger.debug('Tunnel[{:s}]: Received invalid wave.'.format(str(self)))
             return ErrorWave.from_exception(None, ex_type, ex_value, ex_traceback)
@@ -42,5 +44,6 @@ class Tunnel(TunnelIF, ABC):
         return wave.hit(self._shoebox)
 
     async def wave_out(self, wave: Wave):
-        wave_raw = wave.serialize()
+        wave_pb = wave.serialize()
+        wave_raw = wave_pb.SerializeToString()
         await self._send_wave(wave_raw)

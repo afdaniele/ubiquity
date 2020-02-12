@@ -1,7 +1,3 @@
-import json
-from typing import Union, Dict
-from collections import OrderedDict
-
 from inspect import \
     getmembers, \
     signature, \
@@ -13,10 +9,9 @@ from ubiquity.types import \
     Parameter, \
     Method, \
     Quantum, \
-    NOTSET
+    ShoeboxIF
 
 from ubiquity import Shoebox
-from ubiquity.exceptions import JSONParseError
 from ubiquity.stubs import QuantumStubBuilder
 from ubiquity.types import QuantumStub
 
@@ -26,13 +21,13 @@ EXCLUDED_METHODS = [
     '__new__',
     '__repr__',
     '__str__',
-    '__init__'
+    '__init__',
+    '__getattribute__'
 ]
 
 
 def serialize_shoebox(sb: Shoebox) -> ShoeboxPB:
     shoebox_pb = ShoeboxPB()
-    _quanta = {}
     for quantum_id, quantum in sb.quanta.items():
         # do not serialize stubs
         if isinstance(quantum, QuantumStub):
@@ -61,63 +56,46 @@ def serialize_shoebox(sb: Shoebox) -> ShoeboxPB:
                     _ParameterKind.KEYWORD_ONLY: '__keyword__',
                     _ParameterKind.VAR_KEYWORD: '__var_keyword__',
                 }[arg_info.kind]
-                arg_annotation = arg_info.annotation if arg_info.annotation != _empty else NOTSET
-                arg_default = arg_info.default if arg_info.default != _empty else NOTSET
+                arg_annotation = arg_info.annotation if arg_info.annotation != _empty else ''
+                arg_default = arg_info.default if arg_info.default != _empty else None
                 arg = Parameter(arg_name, arg_type, arg_annotation, arg_default)
                 method_args.append(arg)
             method = Method(method_name, method_args)
             stub.add_method(method)
         # add stub to shoebox
-        _quanta[quantum_id] = stub
         shoebox_pb.quanta.append(stub.serialize())
+    # serialize objects
+    for object_name, object_id in sb.objects.items():
+        shoebox_pb.objects[object_name] = object_id
     # return serialized shoebox
     return shoebox_pb
 
 
-def deserialize_shoebox(shoebox_raw: Union[str, Dict]) -> Shoebox:
-    if isinstance(shoebox_raw, str):
-        shoebox_raw = json.loads(shoebox_raw, object_pairs_hook=OrderedDict)
-    if '__ubiquity_object__' not in shoebox_raw or \
-            shoebox_raw['__ubiquity_object__'] != 1 or \
-            '__type__' not in shoebox_raw or \
-            shoebox_raw['__type__'] != '__shoebox__':
-        raise JSONParseError('The given JSON string does not contain a valid Shoebox description')
-    # ---
-    shoebox_raw = shoebox_raw['__data__']
-    shoebox = Shoebox(shoebox_raw['__name__'])
+def deserialize_shoebox(shoebox_pb: ShoeboxPB) -> ShoeboxIF:
+    shoebox = Shoebox(shoebox_pb.name)
     # parse quanta
-    for quantum in shoebox_raw['__quanta__']:
-        quantum = quantum['__data__']
-        quantum_id = quantum['__id__']
+    for quantum in shoebox_pb.quanta:
+        quantum_id = quantum.id
         stub = QuantumStubBuilder(shoebox, quantum_id)
         # parse fields
-        # TODO: validate quantum['__fields__']
-        for field_data in quantum['__fields__']:
-            field_data = field_data['__data__']
-            field_name = field_data['__name__']
-            field = Field(field_name, field_data['__type__'])
-            stub.add_field(field)
+        for field in quantum.fields:
+            stub.add_field(Field(field.name, field.type))
         # parse methods
-        # TODO: validate quantum['__methods__']
-        for method_data in quantum['__methods__']:
-            method_data = method_data['__data__']
-            method_name = method_data['__name__']
-            method_args = method_data['__args__']
+        for method in quantum.methods:
             args = []
-            for arg_data in method_args:
-                arg_data = arg_data['__data__']
+            for arg in method.args:
                 args.append(Parameter(
-                    arg_data['__name__'],
-                    arg_data['__type__'],
-                    arg_data['__annotation__'],
-                    arg_data['__default__']
+                    arg.name,
+                    arg.type,
+                    arg.annotation,
+                    arg.default_value
                 ))
-            method = Method(method_name, args)
+            method = Method(method.name, args)
             stub.add_method(method)
         # add stub to shoebox
-        shoebox.register_quantum(stub.compile())
+        shoebox.register_quantum(stub.compile(), quantum_id)
     # parse objects
-    for object_name, object_id in shoebox_raw['__objects__'].items():
+    for object_name, object_id in shoebox_pb.objects.items():
         shoebox.name_quantum(object_name, object_id)
     # return newly built shoebox
     return shoebox

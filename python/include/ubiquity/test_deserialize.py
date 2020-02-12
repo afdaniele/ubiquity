@@ -2,7 +2,9 @@ import json
 from ubiquity import Shoebox
 
 from ubiquity.serialization.wave import deserialize_wave
-from google.protobuf.text_format import Parse
+from google.protobuf.text_format import Parse, MessageToString
+
+from ubiquity.serialization.Wave_pb2 import WavePB
 
 if __name__ == '__main__':
     # data = json.load(open('./../../test.quark', 'r'))
@@ -10,7 +12,10 @@ if __name__ == '__main__':
     # Write the new address book back to disk.
     f = open('./../../test.quark', 'rt')
 
-    Parse(f.read())
+    wave_pb = WavePB()
+    Parse(f.read(), wave_pb)
     f.close()
 
-    sb = Shoebox.deserialize(data)
+    # print(MessageToString(wave_pb))
+
+    sb = deserialize_wave(wave_pb).shoebox

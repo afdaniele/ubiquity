@@ -20,7 +20,9 @@ class WebSocketTunnel(Tunnel, ABC):
             if self._shoebox:
                 # send the current shoebox
                 wave = ShoeboxWave(self._shoebox)
-                await client.send(wave.serialize())
+                wave_pb = wave.serialize()
+                wave_raw = wave_pb.SerializeToString()
+                await client.send(wave_raw)
             # process incoming waves
             async for wave_raw in client:
                 # nothing to do if this tunnel is not connected to a shoebox
@@ -32,7 +34,9 @@ class WebSocketTunnel(Tunnel, ABC):
                 # parse incoming data, apply and get result
                 res = self.wave_in(wave_raw)
                 if isinstance(res, Wave):
-                    await client.send(res.serialize())
+                    wave_pb = res.serialize()
+                    wave_raw = wave_pb.SerializeToString()
+                    await client.send(wave_raw)
         except ConnectionClosedError:
             pass
 

@@ -1,9 +1,11 @@
-from typing import Any, Union, Iterable, Dict
+from typing import Any, Union, Iterable
 from abc import abstractmethod
 
 from ubiquity.serialization.Shoebox_pb2 import QuantumPB
 from ubiquity.serialization.Shoebox_pb2 import ShoeboxPB
 from ubiquity.serialization.Wave_pb2 import WavePB
+from ubiquity.serialization.Field_pb2 import FieldPB
+from ubiquity.serialization.Method_pb2 import ParameterPB, ParameterTypePB, MethodPB
 
 
 QuantumID = int
@@ -15,7 +17,14 @@ ParameterType = Union[
     '__var_positional__',
     '__var_keyword__'
 ]
-NOTSET = "__NOTSET__"
+
+param_type_map = {
+    '__default__': ParameterTypePB.DEFAULT,
+    '__positional__': ParameterTypePB.POSITIONAL,
+    '__keyword__': ParameterTypePB.KEYWORD,
+    '__var_positional__': ParameterTypePB.VAR_POSITIONAL,
+    '__var_keyword__': ParameterTypePB.VAR_KEYWORD
+}
 
 
 class ShoeboxContent:
@@ -72,12 +81,16 @@ class ShoeboxIF:
         raise NotImplementedError()
 
     @abstractmethod
+    def merge(self, shoebox: 'ShoeboxIF'):
+        raise NotImplementedError()
+
+    @abstractmethod
     def serialize(self) -> ShoeboxPB:
         raise NotImplementedError()
 
     @staticmethod
     @abstractmethod
-    def deserialize(shoebox_raw: Union[str, Dict]) -> 'ShoeboxIF':
+    def deserialize(shoebox_pb: ShoeboxPB) -> 'ShoeboxIF':
         raise NotImplementedError()
 
 
@@ -154,22 +167,8 @@ class WaveIF:
     def serialize_data(self) -> Any:
         raise NotImplementedError()
 
-    @staticmethod
-    @abstractmethod
-    def from_json(wave_raw: str) -> 'WaveIF':
-        raise NotImplementedError()
-
-    @staticmethod
-    def _is_wave(wave: dict) -> bool:
-        if '__ubiquity_object__' not in wave or \
-                wave['__ubiquity_object__'] != 1 or \
-                '__type__' not in wave:
-            return False
-        return True
-
 
 class Field:
-    _utype = '__field__'
 
     def __init__(self, name: str, ftype: FieldType):
         self._name = name
@@ -184,18 +183,13 @@ class Field:
         return self._type
 
     def serialize(self):
-        return {
-            '__ubiquity_object__': 1,
-            '__type__': self._utype,
-            '__data__': {
-                '__name__': self._name,
-                '__type__': str(self._type)
-            }
-        }
+        return FieldPB(
+            name=self.name,
+            type=str(self.type)
+        )
 
 
 class Parameter:
-    _utype = '__parameter__'
 
     def __init__(self, name: str, ptype: ParameterType, annotation: Any, default: Any):
         self._name = name
@@ -220,20 +214,15 @@ class Parameter:
         return self._default
 
     def serialize(self):
-        return {
-            '__ubiquity_object__': 1,
-            '__type__': self._utype,
-            '__data__': {
-                '__name__': self._name,
-                '__type__': str(self._type),
-                '__annotation__': str(self._annotation),
-                '__default__': self._default
-            }
-        }
+        return ParameterPB(
+            name=self.name,
+            type=param_type_map[self.type],
+            annotation=str(self.annotation),
+            default_value=self.default
+        )
 
 
 class Method:
-    _utype = '__method__'
 
     def __init__(self, name: str, args: Iterable[Parameter]):
         self._name = name
@@ -248,18 +237,13 @@ class Method:
         return self._args
 
     def serialize(self):
-        return {
-            '__ubiquity_object__': 1,
-            '__type__': self._utype,
-            '__data__': {
-                '__name__': self._name,
-                '__args__': list(map(lambda a: a.serialize(), self._args))
-            }
-        }
+        return MethodPB(
+            name=self.name,
+            args=[p.serialize() for p in self.args]
+        )
 
 
 class Quantum:
-    _utype = '__stub__'
 
     def __init__(self, quantum_id: int):
         self._id = quantum_id
@@ -285,13 +269,8 @@ class Quantum:
         self._methods.append(method)
 
     def serialize(self):
-        return QuantumPB()
-        return {
-            '__ubiquity_object__': 1,
-            '__type__': self._utype,
-            '__data__': {
-                '__id__': self._id,
-                '__fields__': list(map(lambda a: a.serialize(), self._fields)),
-                '__methods__': list(map(lambda a: a.serialize(), self._methods))
-            }
-        }
+        return QuantumPB(
+            id=self.id,
+            fields=[f.serialize() for f in self.fields],
+            methods=[m.serialize() for m in self.methods]
+        )

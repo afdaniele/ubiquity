@@ -6,19 +6,7 @@ import "ubiquity/serialization/Field.proto";
 import "ubiquity/serialization/Method.proto";
 
 message WavePB {
-  bool __ubiquity_object__ = 1;
-  enum Type {
-    SHOEBOX = 0;
-    FIELD_GETTER_REQUEST = 1;
-    FIELD_GETTER_RESPONSE = 2;
-    FIELD_SETTER_REQUEST = 3;
-    FIELD_SETTER_RESPONSE = 4;
-    METHOD_CALL_REQUEST = 5;
-    METHOD_CALL_RESPONSE = 6;
-    ERROR = 20;
-  }
-  Type type = 2;
-  WaveHeaderPB header = 3;
+  WaveHeaderPB header = 1;
   oneof data {
     ShoeboxPB shoebox = 10;
     FieldGetRequestPB field_get_request = 11;
@@ -32,9 +20,23 @@ message WavePB {
 }
 
 
+enum WaveTypePB {
+  NONE = 0;
+  SHOEBOX = 1;
+  FIELD_GETTER_REQUEST = 2;
+  FIELD_GETTER_RESPONSE = 3;
+  FIELD_SETTER_REQUEST = 4;
+  FIELD_SETTER_RESPONSE = 5;
+  METHOD_CALL_REQUEST = 6;
+  METHOD_CALL_RESPONSE = 7;
+  ERROR = 20;
+}
+
+
 message WaveHeaderPB {
-  string shoebox = 1;
-  string request_wave = 2;
+  WaveTypePB type = 1;
+  string shoebox_name = 2;
+  string request_wave = 3;
 }
 
 
@@ -59,7 +61,7 @@ message FieldSetResponsePB {}
 
 message MethodCallRequestPB {
   MethodPB method = 1;
-  repeated MethodArgumentPB arguments = 2;
+  repeated ParameterPB arguments = 2;
 }
 
 

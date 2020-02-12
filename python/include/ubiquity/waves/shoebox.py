@@ -1,10 +1,10 @@
-import json
 from typing import Dict, Union, Any
 
 from . import Wave
 from ubiquity.exceptions import WaveParseError
 from ubiquity.types import ShoeboxIF
-from ubiquity.serialization.Wave_pb2 import WavePB
+from ubiquity import Shoebox
+from ubiquity.serialization.Wave_pb2 import WavePB, WaveTypePB
 from ubiquity.serialization.Shoebox_pb2 import ShoeboxPB
 
 
@@ -17,17 +17,22 @@ class ShoeboxWave(Wave):
         super().__init__(shoebox, request_wave)
 
     def hit(self, shoebox: Union[None, ShoeboxIF]) -> Union[None, Wave]:
-        pass
+        if shoebox is None:
+            return None
+        # ---
+        shoebox.merge(self.shoebox)
 
     def _serialize(self) -> ShoeboxPB:
         return self._shoebox.serialize()
 
     @staticmethod
     def deserialize(wave_pb: Union[WavePB, ShoeboxPB]) -> 'ShoeboxWave':
-        try:
-            if isinstance(wave_pb, ShoeboxPB):
-                return ShoeboxWave(None, None)
-            if isinstance(wave_pb, WavePB):
-                return ShoeboxWave(wave_pb.header.shoebox, wave_pb.header.request_wave)
-        except Exception:
-            raise WaveParseError()
+        # try:
+        if isinstance(wave_pb, ShoeboxPB):
+            shoebox = Shoebox.deserialize(wave_pb)
+            return ShoeboxWave(shoebox, None)
+        if isinstance(wave_pb, WavePB) and wave_pb.header.type == WaveTypePB.SHOEBOX:
+            shoebox = Shoebox.deserialize(wave_pb.shoebox)
+            return ShoeboxWave(shoebox, wave_pb.header.request_wave)
+        # except Exception:
+        #     raise WaveParseError()

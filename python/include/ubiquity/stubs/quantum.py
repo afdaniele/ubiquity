@@ -8,12 +8,13 @@ from ubiquity.types import \
     QuantumID, \
     ShoeboxIF, \
     QuantumStub
+from ubiquity.serialization.Method_pb2 import ParameterTypePB
 
 
 SIMPLE_PARAMETER_TYPES = [
-  '__default__',
-  '__positional__',
-  '__keyword__'
+    ParameterTypePB.DEFAULT,
+    ParameterTypePB.POSITIONAL,
+    ParameterTypePB.KEYWORD
 ]
 
 
@@ -42,13 +43,13 @@ class QuantumStubBuilder:
 
 
 def _get_getter_property_decorator(shoebox: ShoeboxIF, quantum_id: QuantumID, field_name: str) -> Callable:
-    def _callable():
+    def _callable(_):
         print('This is the value of [Quantum:{:d}].{:s}'.format(quantum_id, field_name))
     return _callable
 
 
 def _get_setter_property_decorator(shoebox: ShoeboxIF, quantum_id: QuantumID, field_name: str) -> Callable:
-    def _callable(value: Any):
+    def _callable(_, value: Any):
         print('You are setting [Quantum:{:d}].{:s} = [{:s}]'.format(quantum_id, field_name, str(value)))
     return _callable
 
@@ -57,7 +58,7 @@ def _get_method_decorator(shoebox: ShoeboxIF,
                           quantum_id: QuantumID,
                           method_name: str,
                           method_args: Iterable[Parameter]) -> Callable:
-    def _callable(*_args, **_kwargs):
+    def _callable(_, *_args, **_kwargs):
         # nonlocal quantum_id, method_name, method_args
         args = OrderedDict()
         t = len(_args)
@@ -68,12 +69,14 @@ def _get_method_decorator(shoebox: ShoeboxIF,
         for i in range(f):
             args[simple_args[i].name] = _args[i]
         # map all the extra parameters to *args (if *args is in the prototype)
-        var_positional_args = [a for a in method_args if a.type == '__var_positional__']
+        var_positional_args = [a for a in method_args if a.type == ParameterTypePB.VAR_POSITIONAL]
         if t > f and var_positional_args:
             _star_arg = var_positional_args[0].name
             args[_star_arg] = _args[f:]
         # add kwargs
-        args.update(_kwargs)
+        var_keyword_args = [a for a in method_args if a.type == ParameterTypePB.VAR_KEYWORD]
+        if var_keyword_args:
+            args[var_keyword_args[0].name] = _kwargs
         # this is the networking part
         print('You called [Quantum:{:d}].{:s}({:s})'.format(
             quantum_id, method_name, ', '.join(['{:s}={:s}'.format(k, str(v)) for k, v in args.items()])

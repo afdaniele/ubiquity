@@ -1,7 +1,10 @@
 from ubiquity.types import WaveIF
 
 from ubiquity.waves.shoebox import ShoeboxWave
-from ubiquity.waves.field import FieldGetRequestWave, FieldGetResponseWave, FieldSetRequestWave, \
+from ubiquity.waves.field import \
+    FieldGetRequestWave,\
+    FieldGetResponseWave,\
+    FieldSetRequestWave, \
     FieldSetResponseWave
 from ubiquity.waves.method import MethodCallRequestWave, MethodCallResponseWave
 from ubiquity.waves.error import ErrorWave
@@ -9,6 +12,7 @@ from ubiquity.waves.error import ErrorWave
 from ubiquity.serialization.Shoebox_pb2 import ShoeboxPB
 from ubiquity.serialization.Wave_pb2 import \
     WavePB, \
+    WaveTypePB, \
     FieldGetRequestPB, \
     FieldGetResponsePB, \
     FieldSetRequestPB, \
@@ -18,14 +22,14 @@ from ubiquity.serialization.Wave_pb2 import \
     ErrorPB
 
 wave_type_map = {
-    ShoeboxWave: WavePB.Type.SHOEBOX,
-    FieldGetRequestWave: WavePB.Type.FIELD_GETTER_REQUEST,
-    FieldGetResponseWave: WavePB.Type.FIELD_GETTER_RESPONSE,
-    FieldSetRequestWave: WavePB.Type.FIELD_SETTER_REQUEST,
-    FieldSetResponseWave: WavePB.Type.FIELD_SETTER_RESPONSE,
-    MethodCallRequestWave: WavePB.Type.METHOD_CALL_REQUEST,
-    MethodCallResponseWave: WavePB.Type.METHOD_CALL_RESPONSE,
-    ErrorWave: WavePB.Type.ERROR
+    ShoeboxWave: WaveTypePB.SHOEBOX,
+    FieldGetRequestWave: WaveTypePB.FIELD_GETTER_REQUEST,
+    FieldGetResponseWave: WaveTypePB.FIELD_GETTER_RESPONSE,
+    FieldSetRequestWave: WaveTypePB.FIELD_SETTER_REQUEST,
+    FieldSetResponseWave: WaveTypePB.FIELD_SETTER_RESPONSE,
+    MethodCallRequestWave: WaveTypePB.METHOD_CALL_REQUEST,
+    MethodCallResponseWave: WaveTypePB.METHOD_CALL_RESPONSE,
+    ErrorWave: WaveTypePB.ERROR
 }
 
 wave_parser_map = dict(zip(wave_type_map.values(), wave_type_map.keys()))
@@ -33,8 +37,8 @@ wave_parser_map = dict(zip(wave_type_map.values(), wave_type_map.keys()))
 
 def serialize_wave(wave: WaveIF) -> WavePB:
     wave_pb = WavePB()
-    wave_pb.type = wave_type_map[type(wave)]
-    wave_pb.header.shoebox_name = wave.shoebox.name
+    wave_pb.header.type = wave_type_map[type(wave)]
+    wave_pb.header.shoebox_name = wave.shoebox.name if wave.shoebox else ''
     wave_pb.header.request_wave = wave.request_wave or ''
     # serialize data
     wave_data = wave.serialize_data()
@@ -60,5 +64,5 @@ def serialize_wave(wave: WaveIF) -> WavePB:
 
 
 def deserialize_wave(wave_pb: WavePB) -> WaveIF:
-    parser = wave_parser_map[wave_pb.type]
+    parser = wave_parser_map[wave_pb.header.type]
     return parser.deserialize(wave_pb)

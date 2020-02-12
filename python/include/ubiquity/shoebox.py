@@ -1,9 +1,9 @@
-from typing import Any, Dict, Union
+from typing import Any
 
-from .types import QuantumID, ShoeboxIF
+from .logger import logger
+from .types import QuantumID, ShoeboxIF, WaveIF
 from .tunnel import Tunnel
-
-from ubiquity.serialization.Shoebox_pb2 import ShoeboxPB
+from .serialization.Shoebox_pb2 import ShoeboxPB
 
 
 class Shoebox(ShoeboxIF):
@@ -11,11 +11,12 @@ class Shoebox(ShoeboxIF):
     def __init__(self, name: str):
         super().__init__(name)
 
-    def register_quantum(self, obj: Any) -> QuantumID:
+    def register_quantum(self, obj: Any, quantum_id: QuantumID = None) -> QuantumID:
         if obj is None:
             raise ValueError('None not supported as quantum object')
-        # get ID of the object
-        quantum_id = id(obj)
+        if quantum_id is None:
+            # get ID of the object (if not given)
+            quantum_id = id(obj)
         # add quantum
         self._quanta[quantum_id] = obj
         return quantum_id
@@ -23,6 +24,8 @@ class Shoebox(ShoeboxIF):
     def name_quantum(self, name: str, quantum_id: QuantumID):
         if not name.isidentifier():
             raise ValueError('The name "{:s}" is not a valid identifier for the object' % name)
+        if quantum_id not in self._quanta:
+            raise KeyError('The ID "{:d}" does not indicate a valid quantum object' % quantum_id)
         self._objects[name] = quantum_id
         setattr(self.content, name, self._quanta[quantum_id])
 
@@ -32,6 +35,10 @@ class Shoebox(ShoeboxIF):
         quantum_id = self.register_quantum(obj)
         self.name_quantum(name, quantum_id)
 
+    def generate_wave(self, wave: WaveIF):
+        for tunnel in self._tunnels:
+            tunnel.wave_out(wave)
+
     def attach(self, tunnel: 'Tunnel'):
         self._tunnels.append(tunnel)
         tunnel.attach(self)
@@ -40,14 +47,24 @@ class Shoebox(ShoeboxIF):
         tunnel.detach()
         self._tunnels.remove(tunnel)
 
+    def merge(self, shoebox: ShoeboxIF):
+        # merge quanta
+        for quantum_id, quantum in shoebox.quanta.items():
+            logger.debug('Shoebox.Merge: Quantum {:d} registered!'.format(quantum_id))
+            self.register_quantum(quantum, quantum_id)
+        # merge objects
+        for object_name, quantum_id in shoebox.objects.items():
+            logger.debug('Shoebox.Merge: Object {:s}(Quantum:{:d}) popped up!'.format(object_name, quantum_id))
+            self.name_quantum(object_name, quantum_id)
+
     def serialize(self) -> ShoeboxPB:
         from .serialization.shoebox import serialize_shoebox
         return serialize_shoebox(self)
 
     @staticmethod
-    def deserialize(shoebox_raw: Union[str, Dict]) -> 'Shoebox':
+    def deserialize(shoebox_pb: ShoeboxPB) -> ShoeboxIF:
         from .serialization.shoebox import deserialize_shoebox
-        return deserialize_shoebox(shoebox_raw)
+        return deserialize_shoebox(shoebox_pb)
 
 
 # > Entanglement:

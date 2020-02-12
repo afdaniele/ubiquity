@@ -1,10 +1,17 @@
 syntax = "proto3";
 
+import "ubiquity/serialization/Field.proto";
+import "ubiquity/serialization/Method.proto";
+
 message ShoeboxPB {
   string name = 1;
   repeated QuantumPB quanta = 2;
+  map<string, int64> objects = 3;
 }
 
-message QuantumPB {
 
+message QuantumPB {
+  int64 id = 1;
+  repeated FieldPB fields = 2;
+  repeated MethodPB methods = 3;
 }
