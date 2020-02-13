@@ -2,8 +2,8 @@ from ubiquity.types import WaveIF
 
 from ubiquity.waves.shoebox import ShoeboxWave
 from ubiquity.waves.field import \
-    FieldGetRequestWave,\
-    FieldGetResponseWave,\
+    FieldGetRequestWave, \
+    FieldGetResponseWave, \
     FieldSetRequestWave, \
     FieldSetResponseWave
 from ubiquity.waves.method import MethodCallRequestWave, MethodCallResponseWave

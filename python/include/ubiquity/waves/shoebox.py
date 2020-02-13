@@ -6,7 +6,6 @@ from ubiquity import Shoebox
 from ubiquity.serialization.Wave_pb2 import WavePB, WaveTypePB
 from ubiquity.serialization.Shoebox_pb2 import ShoeboxPB
 
-
 MethodArguments = Dict[str, Any]
 
 

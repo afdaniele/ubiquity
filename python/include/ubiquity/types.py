@@ -1,10 +1,16 @@
 import os
 import uuid
 import logging
-from typing import Any, Union, Iterable
+from typing import Any, Union, Iterable, Tuple
 from abc import abstractmethod
 
-from ubiquity.serialization.Shoebox_pb2 import QuantumPB
+from inspect import \
+    getmembers, \
+    signature, \
+    _empty, \
+    _ParameterKind
+
+from ubiquity.serialization.Quantum_pb2 import QuantumPB
 from ubiquity.serialization.Shoebox_pb2 import ShoeboxPB
 from ubiquity.serialization.Wave_pb2 import WavePB
 from ubiquity.serialization.Field_pb2 import FieldPB
@@ -29,6 +35,14 @@ param_type_map = {
     '__var_positional__': ParameterTypePB.VAR_POSITIONAL,
     '__var_keyword__': ParameterTypePB.VAR_KEYWORD
 }
+
+EXCLUDED_METHODS = [
+    '__new__',
+    '__repr__',
+    '__str__',
+    '__init__',
+    '__getattribute__'
+]
 
 logging.basicConfig()
 verbose_logging = 'UBIQUITY_VERBOSE' in os.environ and bool(os.environ['UBIQUITY_VERBOSE'])
@@ -172,7 +186,8 @@ class TunnelIF:
 
 class WaveIF:
 
-    def __init__(self, shoebox: Union[ShoeboxIF, None], quantum_id: Union[QuantumID, None], request_wave: Union[str, None]):
+    def __init__(self, shoebox: Union[ShoeboxIF, None], quantum_id: Union[QuantumID, None],
+                 request_wave: Union[str, None]):
         self._id = str(uuid.uuid4())
         self._shoebox = shoebox
         self._quantum_id = quantum_id
@@ -340,3 +355,40 @@ class Quantum:
 
     def __str__(self):
         return 'QT+{:d}'.format(self.id)
+
+    @staticmethod
+    def from_object(obj: Any, quantum_id: QuantumID = None) -> Tuple[QuantumID, 'Quantum']:
+        if quantum_id is None:
+            quantum_id = id(obj)
+        # create stub for the object
+        stub = Quantum(quantum_id)
+        # add fields to stub
+        for field_name, field_value in getmembers(obj, lambda m: not callable(m)):
+            field_type = type(field_value)
+            field = Field(field_name, field_type)
+            stub.add_field(field)
+        # add methods to stub
+        for method_name, method_callable in getmembers(obj, callable):
+            if method_name in EXCLUDED_METHODS:
+                continue
+            try:
+                method_signature = signature(method_callable)
+            except ValueError:
+                continue
+            method_args = []
+            for arg_name, arg_info in method_signature.parameters.items():
+                arg_type = {
+                    _ParameterKind.POSITIONAL_OR_KEYWORD: '__default__',
+                    _ParameterKind.POSITIONAL_ONLY: '__positional__',
+                    _ParameterKind.VAR_POSITIONAL: '__var_positional__',
+                    _ParameterKind.KEYWORD_ONLY: '__keyword__',
+                    _ParameterKind.VAR_KEYWORD: '__var_keyword__',
+                }[arg_info.kind]
+                arg_annotation = arg_info.annotation if arg_info.annotation != _empty else ''
+                arg_default = arg_info.default if arg_info.default != _empty else None
+                arg = Parameter(arg_name, arg_type, arg_annotation, arg_default)
+                method_args.append(arg)
+            method = Method(method_name, method_args)
+            stub.add_method(method)
+        # ---
+        return quantum_id, stub

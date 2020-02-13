@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+import "ubiquity/serialization/Field.proto";
+import "ubiquity/serialization/Method.proto";
+
+message QuantumPB {
+  int64 id = 1;
+  repeated FieldPB fields = 2;
+  repeated MethodPB methods = 3;
+}

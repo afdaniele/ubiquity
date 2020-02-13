@@ -1,7 +1,6 @@
 import os
-os.environ['UBIQUITY_VERBOSE'] = '1'
 
-import time
+os.environ['UBIQUITY_VERBOSE'] = '1'
 
 import asyncio
 from ubiquity import Shoebox
@@ -25,10 +24,8 @@ if __name__ == '__main__':
     print('Spinning the event_loop')
     if run_from_ipython():
         import threading
+
         t = threading.Thread(target=asyncio.get_event_loop().run_forever)
         t.start()
     else:
         asyncio.get_event_loop().run_forever()
-
-
-

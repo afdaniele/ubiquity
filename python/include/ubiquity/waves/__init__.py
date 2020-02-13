@@ -7,7 +7,8 @@ from ubiquity.serialization.Wave_pb2 import WavePB
 
 class Wave(WaveIF, ABC):
 
-    def __init__(self, shoebox: Union[ShoeboxIF, None], quantum_id: Union[QuantumID, None], request_wave: Union[str, None]):
+    def __init__(self, shoebox: Union[ShoeboxIF, None], quantum_id: Union[QuantumID, None],
+                 request_wave: Union[str, None]):
         super().__init__(shoebox, quantum_id, request_wave)
 
     def serialize(self) -> WavePB:

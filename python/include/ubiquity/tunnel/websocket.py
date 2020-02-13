@@ -28,8 +28,8 @@ class WebSocketTunnel(Tunnel, ABC):
                 # nothing to do if this tunnel is not connected to a shoebox
                 if self._shoebox is None:
                     self.logger.debug('Received a wave from {:s}.'.format(
-                                    str(client.remote_address)
-                                ) + ' Dropped, tunnel not attached to any shoeboxes.')
+                        str(client.remote_address)
+                    ) + ' Dropped, tunnel not attached to any shoeboxes.')
                     continue
                 # parse incoming data, and push it up the chain
                 wave = self.wave_in(wave_raw)

@@ -19,7 +19,7 @@ SIMPLE_PARAMETER_TYPES = [
     ParameterTypePB.KEYWORD
 ]
 
-DEFAULT_TIMEOUT_SECS = 20
+DEFAULT_TIMEOUT_SECS = 5
 
 
 class QuantumStubBuilder:
@@ -58,7 +58,8 @@ class QuantumStubBuilder:
         return stub_class()
 
 
-def _get_getter_property_decorator(shoebox: ShoeboxIF, quantum_id: QuantumID, field_name: str) -> Callable:
+def _get_getter_property_decorator(shoebox: ShoeboxIF, quantum_id: QuantumID,
+                                   field_name: str) -> Callable:
     def _callable(_):
         wave_ = FieldGetRequestWave(shoebox, quantum_id, field_name)
         shoebox.wave_out(wave_)
@@ -67,12 +68,16 @@ def _get_getter_property_decorator(shoebox: ShoeboxIF, quantum_id: QuantumID, fi
         except TimeoutError:
             wave_.logger.info('The request timed out!')
         print('This is the value of [Quantum:{:d}].{:s}'.format(quantum_id, field_name))
+
     return _callable
 
 
-def _get_setter_property_decorator(shoebox: ShoeboxIF, quantum_id: QuantumID, field_name: str) -> Callable:
+def _get_setter_property_decorator(shoebox: ShoeboxIF, quantum_id: QuantumID,
+                                   field_name: str) -> Callable:
     def _callable(_, value: Any):
-        print('You are setting [Quantum:{:d}].{:s} = [{:s}]'.format(quantum_id, field_name, str(value)))
+        print('You are setting [Quantum:{:d}].{:s} = [{:s}]'.format(quantum_id, field_name,
+                                                                    str(value)))
+
     return _callable
 
 
@@ -101,6 +106,8 @@ def _get_method_decorator(shoebox: ShoeboxIF,
             args[var_keyword_args[0].name] = _kwargs
         # this is the networking part
         print('You called [Quantum:{:d}].{:s}({:s})'.format(
-            quantum_id, method_name, ', '.join(['{:s}={:s}'.format(k, str(v)) for k, v in args.items()])
+            quantum_id, method_name,
+            ', '.join(['{:s}={:s}'.format(k, str(v)) for k, v in args.items()])
         ))
+
     return _callable

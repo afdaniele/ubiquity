@@ -48,7 +48,7 @@ class Shoebox(ShoeboxIF):
         self.logger.debug('Tunnel /:s\\ detached.'.format(str(tunnel)))
 
     def wave_in(self, wave: 'WaveIF'):
-        if wave.request_wave == '':
+        if wave.request_wave is None or wave.request_wave == '':
             self.logger.debug('Wave {:s} hitting the shoebox.'.format(str(wave)))
             wave.hit(self)
         else:
@@ -95,7 +95,6 @@ class Shoebox(ShoeboxIF):
     def deserialize(shoebox_pb: ShoeboxPB) -> ShoeboxIF:
         from .serialization.shoebox import deserialize_shoebox
         return deserialize_shoebox(shoebox_pb)
-
 
 # > Entanglement:
 # The phenomenon in quantum theory whereby particles that interact with each other become

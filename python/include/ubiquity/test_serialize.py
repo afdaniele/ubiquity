@@ -1,4 +1,5 @@
 import os
+
 os.environ['UBIQUITY_VERBOSE'] = '1'
 
 from ubiquity import Shoebox
@@ -6,16 +7,16 @@ from ubiquity.waves.shoebox import ShoeboxWave
 
 from google.protobuf.text_format import MessageToString
 
-
 if __name__ == '__main__':
-    import json
     from goprocam import GoProCamera
     from types import SimpleNamespace
+
 
     # goproCamera = GoProCamera.GoPro()
 
     def fcn(a, b: str, c: int, *args, **kwargs) -> int:
         return 1
+
 
     a = SimpleNamespace(
         a=5,

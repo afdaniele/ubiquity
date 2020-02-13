@@ -1,4 +1,5 @@
 import os
+
 os.environ['UBIQUITY_VERBOSE'] = '1'
 
 import asyncio
@@ -16,14 +17,15 @@ def run_from_ipython():
 
 
 if __name__ == '__main__':
-    import json
     from goprocam import GoProCamera
     from types import SimpleNamespace
+
 
     # goproCamera = GoProCamera.GoPro()
 
     def fcn(a, b: str, c: int, *args, **kwargs) -> int:
         return 1
+
 
     a = SimpleNamespace(
         a=5,
@@ -52,9 +54,6 @@ if __name__ == '__main__':
         t.start()
     else:
         asyncio.get_event_loop().run_forever()
-
-
-
 
 # > Entanglement:
 # The phenomenon in quantum theory whereby particles that interact with each other become
