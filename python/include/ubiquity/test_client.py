@@ -1,3 +1,8 @@
+import os
+os.environ['UBIQUITY_VERBOSE'] = '1'
+
+import time
+
 import asyncio
 from ubiquity import Shoebox
 from ubiquity.tunnel.websocket import WebSocketClientTunnel
@@ -24,3 +29,6 @@ if __name__ == '__main__':
         t.start()
     else:
         asyncio.get_event_loop().run_forever()
+
+
+

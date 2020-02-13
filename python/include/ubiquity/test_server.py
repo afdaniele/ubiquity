@@ -1,3 +1,6 @@
+import os
+os.environ['UBIQUITY_VERBOSE'] = '1'
+
 import asyncio
 from ubiquity import Shoebox
 from ubiquity.tunnel.websocket import WebSocketServerTunnel

@@ -1,7 +1,6 @@
 from typing import Dict, Union, Any
 
 from . import Wave
-from ubiquity.exceptions import WaveParseError
 from ubiquity.types import ShoeboxIF
 from ubiquity import Shoebox
 from ubiquity.serialization.Wave_pb2 import WavePB, WaveTypePB
@@ -13,14 +12,23 @@ MethodArguments = Dict[str, Any]
 
 class ShoeboxWave(Wave):
 
-    def __init__(self, shoebox: ShoeboxIF, request_wave: Union[str, None] = None):
-        super().__init__(shoebox, request_wave)
+    def __init__(self,
+                 shoebox: ShoeboxIF,
+                 request_wave: Union[str, None] = None):
+        super().__init__(shoebox, None, request_wave)
 
     def hit(self, shoebox: Union[None, ShoeboxIF]) -> Union[None, Wave]:
-        if shoebox is None:
-            return None
+        # merge quanta
+        for _, quantum_builder in self.shoebox.quanta.items():
+            quantum_id = quantum_builder.get_quantum_id()
+            quantum = quantum_builder.build(shoebox)
+            # add stub to shoebox
+            shoebox.register_quantum(quantum, quantum_id)
+        # parse objects
+        for object_name, object_id in self.shoebox.objects.items():
+            shoebox.name_quantum(object_name, object_id)
         # ---
-        shoebox.merge(self.shoebox)
+        return None
 
     def _serialize(self) -> ShoeboxPB:
         return self._shoebox.serialize()

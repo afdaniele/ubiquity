@@ -1,3 +1,6 @@
+import os
+os.environ['UBIQUITY_VERBOSE'] = '1'
+
 from ubiquity import Shoebox
 from ubiquity.waves.shoebox import ShoeboxWave
 

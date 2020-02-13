@@ -76,7 +76,7 @@ def deserialize_shoebox(shoebox_pb: ShoeboxPB) -> ShoeboxIF:
     # parse quanta
     for quantum in shoebox_pb.quanta:
         quantum_id = quantum.id
-        stub = QuantumStubBuilder(shoebox, quantum_id)
+        stub = QuantumStubBuilder(quantum_id)
         # parse fields
         for field in quantum.fields:
             stub.add_field(Field(field.name, field.type))
@@ -93,7 +93,7 @@ def deserialize_shoebox(shoebox_pb: ShoeboxPB) -> ShoeboxIF:
             method = Method(method.name, args)
             stub.add_method(method)
         # add stub to shoebox
-        shoebox.register_quantum(stub.compile(), quantum_id)
+        shoebox.register_quantum(stub, quantum_id)
     # parse objects
     for object_name, object_id in shoebox_pb.objects.items():
         shoebox.name_quantum(object_name, object_id)

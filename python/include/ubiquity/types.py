@@ -1,3 +1,6 @@
+import os
+import uuid
+import logging
 from typing import Any, Union, Iterable
 from abc import abstractmethod
 
@@ -7,6 +10,7 @@ from ubiquity.serialization.Wave_pb2 import WavePB
 from ubiquity.serialization.Field_pb2 import FieldPB
 from ubiquity.serialization.Method_pb2 import ParameterPB, ParameterTypePB, MethodPB
 
+from threading import Semaphore
 
 QuantumID = int
 FieldType = Any
@@ -26,6 +30,9 @@ param_type_map = {
     '__var_keyword__': ParameterTypePB.VAR_KEYWORD
 }
 
+logging.basicConfig()
+verbose_logging = 'UBIQUITY_VERBOSE' in os.environ and bool(os.environ['UBIQUITY_VERBOSE'])
+
 
 class ShoeboxContent:
     pass
@@ -42,6 +49,10 @@ class ShoeboxIF:
         self._quanta = {}
         self._tunnels = []
         self._objects = {}
+        self._waves_in = {}
+        self.__logger__ = logging.getLogger(str(self))
+        self.__logger__.setLevel(logging.DEBUG if verbose_logging else logging.INFO)
+        self._waves_in_lock = Semaphore(1)
         self._content = ShoeboxContent()
 
     @property
@@ -60,8 +71,12 @@ class ShoeboxIF:
     def content(self):
         return self._content
 
+    @property
+    def logger(self):
+        return self.__logger__
+
     @abstractmethod
-    def register_quantum(self, obj: Any) -> QuantumID:
+    def register_quantum(self, obj: Any, quantum_id: QuantumID = None) -> QuantumID:
         raise NotImplementedError()
 
     @abstractmethod
@@ -81,7 +96,15 @@ class ShoeboxIF:
         raise NotImplementedError()
 
     @abstractmethod
-    def merge(self, shoebox: 'ShoeboxIF'):
+    def wave_in(self, wave: 'WaveIF'):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def wave_out(self, wave: 'WaveIF'):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def wait_on(self, request_wave: Union[str, 'WaveIF'], timeout: int = -1):
         raise NotImplementedError()
 
     @abstractmethod
@@ -93,12 +116,16 @@ class ShoeboxIF:
     def deserialize(shoebox_pb: ShoeboxPB) -> 'ShoeboxIF':
         raise NotImplementedError()
 
+    def __str__(self):
+        return 'SB[{:s}]'.format(self.name)
+
 
 class TunnelIF:
 
     def __init__(self):
         self._shoebox = None
         self._is_shutdown = False
+        self.__logger__ = None
 
     @property
     def shoebox(self):
@@ -107,6 +134,13 @@ class TunnelIF:
     @property
     def is_shutdown(self):
         return self._is_shutdown
+
+    @property
+    def logger(self):
+        if not self.__logger__:
+            self.__logger__ = logging.getLogger('TN\\{:s}/'.format(str(self)))
+            self.__logger__.setLevel(logging.DEBUG if verbose_logging else logging.INFO)
+        return self.__logger__
 
     def shutdown(self):
         self._is_shutdown = True
@@ -120,7 +154,7 @@ class TunnelIF:
         raise NotImplementedError()
 
     @abstractmethod
-    def wave_in(self, wave_raw: str):
+    def wave_in(self, wave_raw: str) -> Union['WaveIF', None]:
         raise NotImplementedError()
 
     @abstractmethod
@@ -131,20 +165,40 @@ class TunnelIF:
     async def _send_wave(self, wave_raw: str):
         raise NotImplementedError()
 
+    @abstractmethod
+    def __str__(self):
+        raise NotImplementedError()
+
 
 class WaveIF:
 
-    def __init__(self, shoebox: Union[ShoeboxIF, None], request_wave: Union[str, None]):
+    def __init__(self, shoebox: Union[ShoeboxIF, None], quantum_id: Union[QuantumID, None], request_wave: Union[str, None]):
+        self._id = str(uuid.uuid4())
         self._shoebox = shoebox
+        self._quantum_id = quantum_id
         self._request_wave = request_wave
+        self.__logger__ = logging.getLogger(str(self))
+        self.__logger__.setLevel(logging.DEBUG if verbose_logging else logging.INFO)
 
     @property
-    def shoebox(self) -> ShoeboxIF:
+    def id(self) -> str:
+        return self._id
+
+    @property
+    def shoebox(self) -> Union[ShoeboxIF, None]:
         return self._shoebox
+
+    @property
+    def quantum_id(self) -> Union[QuantumID, None]:
+        return self._quantum_id
 
     @property
     def request_wave(self) -> Union[str, None]:
         return self._request_wave
+
+    @property
+    def logger(self):
+        return self.__logger__
 
     @abstractmethod
     def hit(self, shoebox: Union[None, ShoeboxIF]) -> Union[None, 'WaveIF']:
@@ -166,6 +220,9 @@ class WaveIF:
     @abstractmethod
     def serialize_data(self) -> Any:
         raise NotImplementedError()
+
+    def __str__(self):
+        return 'WV{{{:s}}}'.format(self.id[:8])
 
 
 class Field:
@@ -249,6 +306,8 @@ class Quantum:
         self._id = quantum_id
         self._fields = []
         self._methods = []
+        self.__logger__ = logging.getLogger(str(self))
+        self.__logger__.setLevel(logging.DEBUG if verbose_logging else logging.INFO)
 
     @property
     def id(self) -> int:
@@ -262,6 +321,10 @@ class Quantum:
     def methods(self) -> Iterable[Method]:
         return self._methods
 
+    @property
+    def logger(self):
+        return self.__logger__
+
     def add_field(self, field: Field):
         self._fields.append(field)
 
@@ -274,3 +337,6 @@ class Quantum:
             fields=[f.serialize() for f in self.fields],
             methods=[m.serialize() for m in self.methods]
         )
+
+    def __str__(self):
+        return 'QT+{:d}'.format(self.id)

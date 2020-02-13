@@ -10,6 +10,8 @@ from ubiquity.types import \
     QuantumStub
 from ubiquity.serialization.Method_pb2 import ParameterTypePB
 
+from ubiquity.waves.field import \
+    FieldGetRequestWave
 
 SIMPLE_PARAMETER_TYPES = [
     ParameterTypePB.DEFAULT,
@@ -17,33 +19,53 @@ SIMPLE_PARAMETER_TYPES = [
     ParameterTypePB.KEYWORD
 ]
 
+DEFAULT_TIMEOUT_SECS = 20
+
 
 class QuantumStubBuilder:
 
-    def __init__(self, shoebox: ShoeboxIF, quantum_id: QuantumID):
-        self._shoebox = shoebox
+    def __init__(self, quantum_id: QuantumID):
         self._quantum_id = quantum_id
-        self._properties = {}
-        self._methods = {}
+        self._fields = []
+        self._methods = []
+
+    def get_quantum_id(self) -> QuantumID:
+        return self._quantum_id
 
     def add_field(self, field: Field):
-        self._properties[field.name] = property(
-            _get_getter_property_decorator(self._shoebox, self._quantum_id, field.name),
-            _get_setter_property_decorator(self._shoebox, self._quantum_id, field.name)
-        )
+        self._fields.append(field)
 
     def add_method(self, method: Method):
-        self._methods[method.name] = _get_method_decorator(self._shoebox, self._quantum_id, method.name, method.args)
+        self._methods.append(method)
 
-    def compile(self):
+    def build(self, destination: ShoeboxIF):
+        # build properties
+        properties = {}
+        for field in self._fields:
+            properties[field.name] = property(
+                _get_getter_property_decorator(destination, self._quantum_id, field.name),
+                _get_setter_property_decorator(destination, self._quantum_id, field.name)
+            )
+        # build methods
+        methods = {}
+        for method in self._methods:
+            methods[method.name] = _get_method_decorator(
+                destination, self._quantum_id, method.name, method.args
+            )
         # create new class
         class_name = QuantumStub.__name__ + str(self._quantum_id)
-        stub_class = type(class_name, (QuantumStub,), {**self._properties, **self._methods})
+        stub_class = type(class_name, (QuantumStub,), {**properties, **methods})
         return stub_class()
 
 
 def _get_getter_property_decorator(shoebox: ShoeboxIF, quantum_id: QuantumID, field_name: str) -> Callable:
     def _callable(_):
+        wave_ = FieldGetRequestWave(shoebox, quantum_id, field_name)
+        shoebox.wave_out(wave_)
+        try:
+            _wave = shoebox.wait_on(wave_.id, timeout=DEFAULT_TIMEOUT_SECS)
+        except TimeoutError:
+            wave_.logger.info('The request timed out!')
         print('This is the value of [Quantum:{:d}].{:s}'.format(quantum_id, field_name))
     return _callable
 

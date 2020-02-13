@@ -38,7 +38,8 @@ wave_parser_map = dict(zip(wave_type_map.values(), wave_type_map.keys()))
 def serialize_wave(wave: WaveIF) -> WavePB:
     wave_pb = WavePB()
     wave_pb.header.type = wave_type_map[type(wave)]
-    wave_pb.header.shoebox_name = wave.shoebox.name if wave.shoebox else ''
+    wave_pb.header.shoebox = wave.shoebox.name if wave.shoebox else ''
+    wave_pb.header.quantum_id = wave.quantum_id if wave.quantum_id else 0
     wave_pb.header.request_wave = wave.request_wave or ''
     # serialize data
     wave_data = wave.serialize_data()

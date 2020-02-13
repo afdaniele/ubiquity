@@ -5,9 +5,9 @@ from websockets import WebSocketCommonProtocol
 from websockets.exceptions import ConnectionClosedError
 
 from . import Tunnel
-from ubiquity.waves import Wave
 from ubiquity.waves.shoebox import ShoeboxWave
-from ubiquity.logger import logger
+from ubiquity.waves import Wave
+from ubiquity.serialization.wave import serialize_wave
 
 
 class WebSocketTunnel(Tunnel, ABC):
@@ -27,16 +27,17 @@ class WebSocketTunnel(Tunnel, ABC):
             async for wave_raw in client:
                 # nothing to do if this tunnel is not connected to a shoebox
                 if self._shoebox is None:
-                    logger.debug('Tunnel[{:s}]: Received a wave from {:s}.'.format(
-                                    str(self), str(client.remote_address)
+                    self.logger.debug('Received a wave from {:s}.'.format(
+                                    str(client.remote_address)
                                 ) + ' Dropped, tunnel not attached to any shoeboxes.')
                     continue
-                # parse incoming data, apply and get result
-                res = self.wave_in(wave_raw)
-                if isinstance(res, Wave):
-                    wave_pb = res.serialize()
+                # parse incoming data, and push it up the chain
+                wave = self.wave_in(wave_raw)
+                if isinstance(wave, Wave):
+                    wave_pb = serialize_wave(wave)
                     wave_raw = wave_pb.SerializeToString()
-                    await client.send(wave_raw)
+                    # TODO: re-enable. Disabled to avoid on-error infinite loop
+                    # await client.send(wave_raw)
         except ConnectionClosedError:
             pass
 
@@ -64,7 +65,7 @@ class WebSocketServerTunnel(WebSocketTunnel):
             await asyncio.wait([client.send(wave_raw) for client in self._links])
 
     def __str__(self):
-        return '{:s}({:s}:{:d})'.format(self.__class__.__name__, self._bind_host, self._bind_port)
+        return 'WS:{:s}:{:d}'.format(self._bind_host, self._bind_port)
 
 
 class WebSocketClientTunnel(WebSocketTunnel):
@@ -91,10 +92,8 @@ class WebSocketClientTunnel(WebSocketTunnel):
         await self._socket.close()
 
     async def _send_wave(self, wave_raw: str):
-        # if self._socket:
-        await self._socket.send(wave_raw)
+        if self._socket:
+            await self._socket.send(wave_raw)
 
     def __str__(self):
-        return '{:s}({:s}:{:d})'.format(
-            self.__class__.__name__, self._server_host, self._server_port
-        )
+        return 'WS:{:s}:{:d}'.format(self._server_host, self._server_port)

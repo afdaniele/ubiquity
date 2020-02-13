@@ -1,6 +1,7 @@
-from typing import Any
+import time
+import asyncio
+from typing import Any, Union
 
-from .logger import logger
 from .types import QuantumID, ShoeboxIF, WaveIF
 from .tunnel import Tunnel
 from .serialization.Shoebox_pb2 import ShoeboxPB
@@ -19,6 +20,7 @@ class Shoebox(ShoeboxIF):
             quantum_id = id(obj)
         # add quantum
         self._quanta[quantum_id] = obj
+        self.logger.debug('New quantum QT-{:d} registered!'.format(quantum_id))
         return quantum_id
 
     def name_quantum(self, name: str, quantum_id: QuantumID):
@@ -35,27 +37,55 @@ class Shoebox(ShoeboxIF):
         quantum_id = self.register_quantum(obj)
         self.name_quantum(name, quantum_id)
 
-    def generate_wave(self, wave: WaveIF):
-        for tunnel in self._tunnels:
-            tunnel.wave_out(wave)
-
     def attach(self, tunnel: 'Tunnel'):
         self._tunnels.append(tunnel)
         tunnel.attach(self)
+        self.logger.debug('Tunnel /{:s}\\ attached.'.format(str(tunnel)))
 
     def detach(self, tunnel: 'Tunnel'):
         tunnel.detach()
         self._tunnels.remove(tunnel)
+        self.logger.debug('Tunnel /:s\\ detached.'.format(str(tunnel)))
 
-    def merge(self, shoebox: ShoeboxIF):
-        # merge quanta
-        for quantum_id, quantum in shoebox.quanta.items():
-            logger.debug('Shoebox.Merge: Quantum {:d} registered!'.format(quantum_id))
-            self.register_quantum(quantum, quantum_id)
-        # merge objects
-        for object_name, quantum_id in shoebox.objects.items():
-            logger.debug('Shoebox.Merge: Object {:s}(Quantum:{:d}) popped up!'.format(object_name, quantum_id))
-            self.name_quantum(object_name, quantum_id)
+    def wave_in(self, wave: 'WaveIF'):
+        if wave.request_wave == '':
+            self.logger.debug('Wave {:s} hitting the shoebox.'.format(str(wave)))
+            wave.hit(self)
+        else:
+            self.logger.debug('Wave {:s} responds to {:s}. Queued!'.format(
+                str(wave), wave.request_wave[:8]
+            ))
+            self._waves_in[wave.request_wave] = wave
+
+    def wave_out(self, wave: 'WaveIF'):
+        self.logger.debug('Wave {:s} generated ({:d} tunnels).'.format(
+            str(wave), len(self._tunnels)
+        ))
+        for tunnel in self._tunnels:
+            asyncio.run_coroutine_threadsafe(
+                tunnel.wave_out(wave), asyncio.get_event_loop()
+            )
+
+    def wait_on(self, request_wave: Union[str, 'WaveIF'], timeout: int = 0):
+        if isinstance(request_wave, WaveIF):
+            request_wave = request_wave.id
+        start_time = time.time()
+        # wait for response in the queue
+        while request_wave not in self._waves_in:
+            # is timeout?
+            if 0 < timeout < time.time() - start_time:
+                raise TimeoutError()
+            time.sleep(0.1)
+        res = None
+        # get response out of the queue
+        self._waves_in_lock.acquire()
+        if request_wave in self._waves_in:
+            res = self._waves_in[request_wave]
+            del self._waves_in[request_wave]
+            self.logger.debug('Queued wave {:s} consumed by its listener'.format(str(res)))
+        self._waves_in_lock.release()
+        # return response
+        return res
 
     def serialize(self) -> ShoeboxPB:
         from .serialization.shoebox import serialize_shoebox
