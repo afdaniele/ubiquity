@@ -1,4 +1,6 @@
 import sys
+import asyncio
+import threading
 from abc import ABC
 from typing import Union
 
@@ -25,15 +27,11 @@ class Tunnel(TunnelIF, ABC):
 
     def wave_in(self, wave_raw: str) -> Union[ErrorWave, None]:
         # parse incoming data
-        # noinspection PyPep8
         try:
             wave_pb = WavePB()
             wave_pb.ParseFromString(wave_raw)
             wave = Wave.deserialize(wave_pb)
-            self.logger.debug('Received {:s} of type {:s}.'.format(
-                str(wave),
-                _WAVETYPEPB.values_by_number[wave_pb.header.type].name
-            ))
+            self.logger.debug('Received {:s}.'.format(str(wave)))
         except:
             ex_type, ex_value, ex_traceback = sys.exc_info()
             self.logger.error(ex_type)
@@ -54,3 +52,20 @@ class Tunnel(TunnelIF, ABC):
         print(MessageToString(wave_pb))
 
         await self._send_wave(wave_raw)
+
+
+class AsyncTunnel(Tunnel, ABC):
+
+    def __init__(self):
+        super().__init__()
+        self._event_loop = asyncio.new_event_loop()
+        self._event_loop_thread = threading.Thread(target=self._event_loop.run_forever)
+        self._event_loop_thread.start()
+
+    @property
+    def event_loop(self):
+        return self._event_loop
+
+    def shutdown(self):
+        self._event_loop.stop()
+        super().shutdown()

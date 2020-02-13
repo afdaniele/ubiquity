@@ -11,7 +11,11 @@ from ubiquity.types import \
 from ubiquity.serialization.Method_pb2 import ParameterTypePB
 
 from ubiquity.waves.field import \
-    FieldGetRequestWave
+    FieldGetRequestWave,\
+    FieldGetResponseWave,\
+    FieldSetRequestWave,\
+    FieldSetResponseWave
+from ubiquity.waves.error import ErrorWave
 
 SIMPLE_PARAMETER_TYPES = [
     ParameterTypePB.DEFAULT,
@@ -19,7 +23,7 @@ SIMPLE_PARAMETER_TYPES = [
     ParameterTypePB.KEYWORD
 ]
 
-DEFAULT_TIMEOUT_SECS = 5
+DEFAULT_TIMEOUT_SECS = 20
 
 
 class QuantumStubBuilder:
@@ -67,7 +71,16 @@ def _get_getter_property_decorator(shoebox: ShoeboxIF, quantum_id: QuantumID,
             _wave = shoebox.wait_on(wave_.id, timeout=DEFAULT_TIMEOUT_SECS)
         except TimeoutError:
             wave_.logger.info('The request timed out!')
-        print('This is the value of [Quantum:{:d}].{:s}'.format(quantum_id, field_name))
+            return
+        # on error
+        if isinstance(_wave, ErrorWave):
+            _wave.logger.error('{:s}: {:s}\nTraceback:\n{:s}'.format(
+                _wave.error_type, _wave.error_message, _wave.error_trace
+            ))
+            return
+        # on success
+        assert isinstance(_wave, FieldGetResponseWave)
+        return _wave.field_value
 
     return _callable
 
@@ -75,8 +88,23 @@ def _get_getter_property_decorator(shoebox: ShoeboxIF, quantum_id: QuantumID,
 def _get_setter_property_decorator(shoebox: ShoeboxIF, quantum_id: QuantumID,
                                    field_name: str) -> Callable:
     def _callable(_, value: Any):
-        print('You are setting [Quantum:{:d}].{:s} = [{:s}]'.format(quantum_id, field_name,
-                                                                    str(value)))
+        # wave_ = FieldSetRequestWave(shoebox, quantum_id, field_name)
+        # shoebox.wave_out(wave_)
+        # try:
+        #     _wave = shoebox.wait_on(wave_.id, timeout=DEFAULT_TIMEOUT_SECS)
+        # except TimeoutError:
+        #     wave_.logger.info('The request timed out!')
+        #     return
+        # # on error
+        # if isinstance(_wave, ErrorWave):
+        #     _wave.logger.error('{:s}: {:s}\nTraceback:\n{:s}'.format(
+        #         _wave.error_type, _wave.error_message, _wave.error_trace
+        #     ))
+        #     return
+        # # on success
+        # assert isinstance(_wave, FieldGetResponseWave)
+        # return _wave.field_value
+        pass
 
     return _callable
 

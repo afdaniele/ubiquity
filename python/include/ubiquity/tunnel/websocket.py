@@ -4,7 +4,7 @@ from abc import ABC
 from websockets import WebSocketCommonProtocol
 from websockets.exceptions import ConnectionClosedError
 
-from . import Tunnel
+from . import AsyncTunnel, Tunnel
 from ubiquity.waves.shoebox import ShoeboxWave
 from ubiquity.waves import Wave
 from ubiquity.serialization.wave import serialize_wave
@@ -50,6 +50,7 @@ class WebSocketServerTunnel(WebSocketTunnel):
         self._bind_port = bind_port
         self._links = []
         server = websockets.serve(self.handler, self._bind_host, self._bind_port)
+        # self.event_loop.run_until_complete(server)
         asyncio.get_event_loop().run_until_complete(server)
 
     async def handler(self, client: WebSocketCommonProtocol, _: str):
@@ -76,12 +77,14 @@ class WebSocketClientTunnel(WebSocketTunnel):
         self._server_port = server_port
         self._socket = None
         self._uri = 'ws://{:s}:{:d}'.format(self._server_host, self._server_port)
+        # self.event_loop.create_task(self._connect())
         asyncio.get_event_loop().create_task(self._connect())
 
     async def _connect(self):
         while True:
             try:
                 self._socket = await websockets.connect(self._uri)
+                # self.event_loop.create_task(self._run())
                 asyncio.get_event_loop().create_task(self._run())
                 break
             except ConnectionRefusedError:

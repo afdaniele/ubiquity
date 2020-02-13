@@ -50,7 +50,9 @@ class Shoebox(ShoeboxIF):
     def wave_in(self, wave: 'WaveIF'):
         if wave.request_wave is None or wave.request_wave == '':
             self.logger.debug('Wave {:s} hitting the shoebox.'.format(str(wave)))
-            wave.hit(self)
+            res = wave.hit(self)
+            if isinstance(res, WaveIF):
+                self.wave_out(res)
         else:
             self.logger.debug('Wave {:s} responds to {:s}. Queued!'.format(
                 str(wave), wave.request_wave[:8]
@@ -58,13 +60,15 @@ class Shoebox(ShoeboxIF):
             self._waves_in[wave.request_wave] = wave
 
     def wave_out(self, wave: 'WaveIF'):
-        self.logger.debug('Wave {:s} generated ({:d} tunnels).'.format(
+        self.logger.debug('Generated wave {:s} ({:d} tunnels).'.format(
             str(wave), len(self._tunnels)
         ))
         for tunnel in self._tunnels:
+            # asyncio.get_event_loop().create_task(tunnel.wave_out(wave))
             asyncio.run_coroutine_threadsafe(
                 tunnel.wave_out(wave), asyncio.get_event_loop()
             )
+            # tunnel.wave_out(wave)
 
     def wait_on(self, request_wave: Union[str, 'WaveIF'], timeout: int = 0):
         if isinstance(request_wave, WaveIF):
@@ -90,6 +94,12 @@ class Shoebox(ShoeboxIF):
     def serialize(self) -> ShoeboxPB:
         from .serialization.shoebox import serialize_shoebox
         return serialize_shoebox(self)
+
+    def destroy(self, recursive: bool = False):
+        for tunnel in self._tunnels:
+            self.detach(tunnel)
+            if recursive:
+                tunnel.shutdown()
 
     @staticmethod
     def deserialize(shoebox_pb: ShoeboxPB) -> ShoeboxIF:

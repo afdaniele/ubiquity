@@ -125,6 +125,10 @@ class ShoeboxIF:
     def serialize(self) -> ShoeboxPB:
         raise NotImplementedError()
 
+    @abstractmethod
+    def destroy(self):
+        raise NotImplementedError()
+
     @staticmethod
     @abstractmethod
     def deserialize(shoebox_pb: ShoeboxPB) -> 'ShoeboxIF':
@@ -185,10 +189,14 @@ class TunnelIF:
 
 
 class WaveIF:
+    _type = "**"
 
     def __init__(self, shoebox: Union[ShoeboxIF, None], quantum_id: Union[QuantumID, None],
-                 request_wave: Union[str, None]):
-        self._id = str(uuid.uuid4())
+                 request_wave: Union[str, None], wave_id: Union[str, None] = None):
+        if wave_id is None:
+            self._id = str(uuid.uuid4())
+        else:
+            self._id = wave_id
         self._shoebox = shoebox
         self._quantum_id = quantum_id
         self._request_wave = request_wave
@@ -237,7 +245,7 @@ class WaveIF:
         raise NotImplementedError()
 
     def __str__(self):
-        return 'WV{{{:s}}}'.format(self.id[:8])
+        return 'WV{{{:s}}}{:s}'.format(self.id[:8], self._type)
 
 
 class Field:
@@ -254,7 +262,7 @@ class Field:
     def type(self) -> FieldType:
         return self._type
 
-    def serialize(self):
+    def serialize(self) -> FieldPB:
         return FieldPB(
             name=self.name,
             type=str(self.type)
@@ -285,7 +293,7 @@ class Parameter:
     def default(self) -> Any:
         return self._default
 
-    def serialize(self):
+    def serialize(self) -> ParameterPB:
         return ParameterPB(
             name=self.name,
             type=param_type_map[self.type],
@@ -308,7 +316,7 @@ class Method:
     def args(self) -> Iterable[Parameter]:
         return self._args
 
-    def serialize(self):
+    def serialize(self) -> MethodPB:
         return MethodPB(
             name=self.name,
             args=[p.serialize() for p in self.args]
@@ -346,12 +354,17 @@ class Quantum:
     def add_method(self, method: Method):
         self._methods.append(method)
 
-    def serialize(self):
+    def serialize(self) -> QuantumPB:
         return QuantumPB(
             id=self.id,
             fields=[f.serialize() for f in self.fields],
             methods=[m.serialize() for m in self.methods]
         )
+
+    @staticmethod
+    def deserialize(quantum_pb: QuantumPB) -> 'Quantum':
+        # TODO: implement this
+        return None
 
     def __str__(self):
         return 'QT+{:d}'.format(self.id)

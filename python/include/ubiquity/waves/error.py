@@ -8,6 +8,7 @@ from ubiquity.serialization.Wave_pb2 import WavePB, ErrorPB
 
 
 class ErrorWave(Wave):
+    _type = "EE"
 
     def __init__(self,
                  shoebox: Union[ShoeboxIF, None],
@@ -15,8 +16,9 @@ class ErrorWave(Wave):
                  request_wave: Union[str, None],
                  etype: str,
                  emessage: str,
-                 etrace: str):
-        super().__init__(shoebox, quantum_id, request_wave)
+                 etrace: str,
+                 wave_id: Union[str, None] = None):
+        super().__init__(shoebox, quantum_id, request_wave, wave_id=wave_id)
         self._error_type = etype
         self._error_message = emessage
         self._error_trace = etrace
@@ -33,7 +35,7 @@ class ErrorWave(Wave):
     def error_trace(self) -> str:
         return self._error_trace
 
-    def hit(self, shoebox: Union[None, ShoeboxIF]) -> Union[None, WaveIF]:
+    def hit(self, shoebox: Union[None, ShoeboxIF]) -> WaveIF:
         return None
 
     def _serialize(self) -> ErrorPB:
@@ -45,11 +47,15 @@ class ErrorWave(Wave):
 
     @staticmethod
     def deserialize(wave_pb: Union[WavePB, ErrorPB]) -> 'ErrorWave':
-        # noinspection PyPep8
         try:
             if isinstance(wave_pb, ErrorPB):
                 return ErrorWave(
-                    None, None, None, wave_pb.etype, wave_pb.emessage, wave_pb.etrace
+                    None,
+                    None,
+                    None,
+                    wave_pb.etype,
+                    wave_pb.emessage,
+                    wave_pb.etrace
                 )
             if isinstance(wave_pb, WavePB):
                 return ErrorWave(
@@ -58,7 +64,8 @@ class ErrorWave(Wave):
                     wave_pb.header.request_wave,
                     wave_pb.error.etype,
                     wave_pb.error.emessage,
-                    wave_pb.error.etrace
+                    wave_pb.error.etrace,
+                    wave_id=wave_pb.header.id
                 )
         except:
             raise WaveParseError()

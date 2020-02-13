@@ -9,14 +9,16 @@ MethodArguments = Dict[str, Any]
 
 
 class MethodCallRequestWave(Wave):
+    _type = "MC"
 
     def __init__(self,
                  shoebox: Union[ShoeboxIF, None],
                  quantum_id: Union[QuantumID, None],
                  request_wave: Union[str, None],
                  method_name: str,
-                 args: MethodArguments):
-        super().__init__(shoebox, quantum_id, request_wave)
+                 args: MethodArguments,
+                 wave_id: Union[str, None] = None):
+        super().__init__(shoebox, quantum_id, request_wave, wave_id=wave_id)
         self._method_name = method_name
         self._args = args
 
@@ -28,7 +30,7 @@ class MethodCallRequestWave(Wave):
     def args(self) -> MethodArguments:
         return self._args
 
-    def hit(self, shoebox: Union[None, ShoeboxIF]) -> Union[None, Wave]:
+    def hit(self, shoebox: Union[None, ShoeboxIF]) -> Wave:
         pass
 
     def _serialize(self) -> MethodCallRequestPB:
@@ -57,27 +59,30 @@ class MethodCallRequestWave(Wave):
                     wave_pb.header.quantum_id,
                     wave_pb.header.request_wave,
                     wave_pb.method_call_request.method.name,
-                    {}
+                    {},
+                    wave_id=wave_pb.header.id
                 )
         except Exception:
             raise WaveParseError()
 
 
 class MethodCallResponseWave(Wave):
+    _type = "MR"
 
     def __init__(self,
                  shoebox: Union[ShoeboxIF, None],
                  quantum_id: Union[QuantumID, None],
                  request_wave: Union[str, None],
-                 return_value: Any):
-        super().__init__(shoebox, quantum_id, request_wave)
+                 return_value: Any,
+                 wave_id: Union[str, None] = None):
+        super().__init__(shoebox, quantum_id, request_wave, wave_id=wave_id)
         self._return_value = return_value
 
     @property
     def return_value(self) -> Any:
         return self._return_value
 
-    def hit(self, shoebox: Union[None, ShoeboxIF]) -> Union[None, Wave]:
+    def hit(self, shoebox: Union[None, ShoeboxIF]) -> None:
         pass
 
     def _serialize(self) -> MethodCallResponsePB:
@@ -100,7 +105,8 @@ class MethodCallResponseWave(Wave):
                     wave_pb.header.shoebox,
                     wave_pb.header.quantum_id,
                     wave_pb.header.request_wave,
-                    wave_pb.method_call_response.return_value
+                    wave_pb.method_call_response.return_value,
+                    wave_id=wave_pb.header.id
                 )
         except Exception:
             raise WaveParseError()

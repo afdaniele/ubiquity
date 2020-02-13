@@ -34,10 +34,11 @@ enum WaveTypePB {
 
 
 message WaveHeaderPB {
-  WaveTypePB type = 1;
-  string shoebox = 2;
-  int64 quantum_id = 3;
-  string request_wave = 4;
+  string id = 1;
+  WaveTypePB type = 2;
+  string shoebox = 3;
+  int64 quantum_id = 4;
+  string request_wave = 5;
 }
 
 
