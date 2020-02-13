@@ -2,30 +2,18 @@ import os
 
 os.environ['UBIQUITY_VERBOSE'] = '1'
 
-import asyncio
 from ubiquity import Shoebox
 from ubiquity.tunnel.websocket import WebSocketServerTunnel
-
-
-def run_from_ipython():
-    try:
-        # noinspection PyStatementEffect
-        __IPYTHON__
-        return True
-    except NameError:
-        return False
 
 
 if __name__ == '__main__':
     from goprocam import GoProCamera
     from types import SimpleNamespace
 
-
     # goproCamera = GoProCamera.GoPro()
 
     def fcn(a, b: str, c: int, *args, **kwargs) -> int:
         return 1
-
 
     a = SimpleNamespace(
         a=5,
@@ -39,21 +27,15 @@ if __name__ == '__main__':
     )
 
     sbox = Shoebox('general')
+
     tunnel = WebSocketServerTunnel()
 
     sbox.attach(tunnel)
 
     sbox.add('sn', a)
+
     # sbox.add('gopro', goproCamera)
 
-    # print('Spinning the event_loop')
-    # if run_from_ipython():
-    #     import threading
-    #
-    #     t = threading.Thread(target=asyncio.get_event_loop().run_forever)
-    #     t.start()
-    # else:
-    #     asyncio.get_event_loop().run_forever()
 
 # > Entanglement:
 # The phenomenon in quantum theory whereby particles that interact with each other become

@@ -10,7 +10,7 @@ from ubiquity.waves import Wave
 from ubiquity.serialization.wave import serialize_wave
 
 
-class WebSocketTunnel(Tunnel, ABC):
+class WebSocketTunnel(AsyncTunnel, ABC):
 
     def __init__(self):
         super().__init__()
@@ -36,13 +36,12 @@ class WebSocketTunnel(Tunnel, ABC):
                 if isinstance(wave, Wave):
                     wave_pb = serialize_wave(wave)
                     wave_raw = wave_pb.SerializeToString()
-                    # TODO: re-enable. Disabled to avoid on-error infinite loop
-                    # await client.send(wave_raw)
+                    await client.send(wave_raw)
         except ConnectionClosedError:
             pass
 
 
-class WebSocketServerTunnel(WebSocketTunnel, AsyncTunnel):
+class WebSocketServerTunnel(WebSocketTunnel):
 
     def __init__(self, bind_host: str = 'localhost', bind_port: int = 5005):
         super().__init__()
@@ -69,7 +68,7 @@ class WebSocketServerTunnel(WebSocketTunnel, AsyncTunnel):
         return 'WS:{:s}:{:d}'.format(self._bind_host, self._bind_port)
 
 
-class WebSocketClientTunnel(WebSocketTunnel, AsyncTunnel):
+class WebSocketClientTunnel(WebSocketTunnel):
 
     def __init__(self, server_host: str, server_port: int = 5005):
         super().__init__()

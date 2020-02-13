@@ -32,13 +32,12 @@ class Tunnel(TunnelIF, ABC):
             wave_pb.ParseFromString(wave_raw)
             wave = Wave.deserialize(wave_pb)
             self.logger.debug('Received {:s}.'.format(str(wave)))
+            # we have a valid wave, push it to the shoebox
+            return self._shoebox.wave_in(wave)
         except:
             ex_type, ex_value, ex_traceback = sys.exc_info()
             self.logger.error(ex_type)
             self.logger.debug('Received invalid wave.')
-            return ErrorWave.from_exception(None, ex_type, ex_value, ex_traceback)
-        # we have a valid wave, push it to the shoebox
-        self._shoebox.wave_in(wave)
 
     def wave_out(self, wave: Wave):
         wave_pb = wave.serialize()
@@ -66,7 +65,9 @@ class AsyncTunnel(Tunnel, ABC):
         self._event_loop_thread.start()
 
     def shutdown(self):
-        self._event_loop.stop()
+        for task in asyncio.Task.all_tasks(loop=self.event_loop):
+            task.cancel()
+        # self._event_loop.stop()
         super().shutdown()
 
     async def wave_out(self, wave: Wave):
