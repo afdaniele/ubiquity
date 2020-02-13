@@ -45,6 +45,7 @@ class ErrorWave(Wave):
 
     @staticmethod
     def deserialize(wave_pb: Union[WavePB, ErrorPB]) -> 'ErrorWave':
+        # noinspection PyPep8
         try:
             if isinstance(wave_pb, ErrorPB):
                 return ErrorWave(

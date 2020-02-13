@@ -25,7 +25,7 @@ class FieldGetRequestWave(Wave):
         return self._field_name
 
     def hit(self, shoebox: Union[None, ShoeboxIF]) -> Union[None, Wave]:
-        pass
+        print('HIT!')
 
     def _serialize(self) -> FieldGetRequestPB:
         wave_pb = FieldGetRequestPB()

@@ -25,6 +25,7 @@ class Tunnel(TunnelIF, ABC):
 
     def wave_in(self, wave_raw: str) -> Union[ErrorWave, None]:
         # parse incoming data
+        # noinspection PyPep8
         try:
             wave_pb = WavePB()
             wave_pb.ParseFromString(wave_raw)
