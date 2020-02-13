@@ -1,7 +1,7 @@
 import sys
 import asyncio
 import threading
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import Union
 
 from ubiquity.waves import Wave
@@ -40,18 +40,15 @@ class Tunnel(TunnelIF, ABC):
         # we have a valid wave, push it to the shoebox
         self._shoebox.wave_in(wave)
 
-    async def wave_out(self, wave: Wave):
+    def wave_out(self, wave: Wave):
         wave_pb = wave.serialize()
         wave_raw = wave_pb.SerializeToString()
-        self.logger.debug('Sending out {:s} of type {:s}.'.format(
-            str(wave),
-            _WAVETYPEPB.values_by_number[wave_pb.header.type].name
-        ))
-
+        self.logger.debug('Sending out {:s}.'.format(str(wave)))
+        # TODO: remove =>
         from google.protobuf.text_format import MessageToString
         print(MessageToString(wave_pb))
-
-        await self._send_wave(wave_raw)
+        # TODO: remove <=
+        self._send_wave(wave_raw)
 
 
 class AsyncTunnel(Tunnel, ABC):
@@ -60,12 +57,28 @@ class AsyncTunnel(Tunnel, ABC):
         super().__init__()
         self._event_loop = asyncio.new_event_loop()
         self._event_loop_thread = threading.Thread(target=self._event_loop.run_forever)
-        self._event_loop_thread.start()
 
     @property
     def event_loop(self):
         return self._event_loop
 
+    def start(self):
+        self._event_loop_thread.start()
+
     def shutdown(self):
         self._event_loop.stop()
         super().shutdown()
+
+    async def wave_out(self, wave: Wave):
+        wave_pb = wave.serialize()
+        wave_raw = wave_pb.SerializeToString()
+        self.logger.debug('Sending out {:s}.'.format(str(wave)))
+        # TODO: remove =>
+        from google.protobuf.text_format import MessageToString
+        print(MessageToString(wave_pb))
+        # TODO: remove <=
+        await self._send_wave(wave_raw)
+
+    @abstractmethod
+    async def _send_wave(self, wave_raw: str):
+        raise NotImplementedError()

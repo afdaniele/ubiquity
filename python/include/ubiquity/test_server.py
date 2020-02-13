@@ -46,14 +46,14 @@ if __name__ == '__main__':
     sbox.add('sn', a)
     # sbox.add('gopro', goproCamera)
 
-    print('Spinning the event_loop')
-    if run_from_ipython():
-        import threading
-
-        t = threading.Thread(target=asyncio.get_event_loop().run_forever)
-        t.start()
-    else:
-        asyncio.get_event_loop().run_forever()
+    # print('Spinning the event_loop')
+    # if run_from_ipython():
+    #     import threading
+    #
+    #     t = threading.Thread(target=asyncio.get_event_loop().run_forever)
+    #     t.start()
+    # else:
+    #     asyncio.get_event_loop().run_forever()
 
 # > Entanglement:
 # The phenomenon in quantum theory whereby particles that interact with each other become

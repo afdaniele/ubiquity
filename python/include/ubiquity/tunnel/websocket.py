@@ -42,16 +42,16 @@ class WebSocketTunnel(Tunnel, ABC):
             pass
 
 
-class WebSocketServerTunnel(WebSocketTunnel):
+class WebSocketServerTunnel(WebSocketTunnel, AsyncTunnel):
 
     def __init__(self, bind_host: str = 'localhost', bind_port: int = 5005):
         super().__init__()
         self._bind_host = bind_host
         self._bind_port = bind_port
         self._links = []
-        server = websockets.serve(self.handler, self._bind_host, self._bind_port)
-        # self.event_loop.run_until_complete(server)
-        asyncio.get_event_loop().run_until_complete(server)
+        server = websockets.serve(self.handler, self._bind_host, self._bind_port, loop=self.event_loop)
+        asyncio.ensure_future(server, loop=self.event_loop)
+        self.start()
 
     async def handler(self, client: WebSocketCommonProtocol, _: str):
         self._links.append(client)
@@ -63,7 +63,7 @@ class WebSocketServerTunnel(WebSocketTunnel):
 
     async def _send_wave(self, wave_raw: str):
         if self._links:
-            await asyncio.wait([client.send(wave_raw) for client in self._links])
+            await asyncio.wait([client.send(wave_raw) for client in self._links], loop=self.event_loop)
 
     def __str__(self):
         return 'WS:{:s}:{:d}'.format(self._bind_host, self._bind_port)
@@ -77,20 +77,17 @@ class WebSocketClientTunnel(WebSocketTunnel, AsyncTunnel):
         self._server_port = server_port
         self._socket = None
         self._uri = 'ws://{:s}:{:d}'.format(self._server_host, self._server_port)
-        # asyncio.get_event_loop().create_task(self._connect())
-        # self.event_loop = asyncio.new_event_loop()
         asyncio.run_coroutine_threadsafe(self._connect(), self.event_loop)
-        # self.event_loop.create_task()
+        self.start()
 
     async def _connect(self):
         while True:
             try:
                 self._socket = await websockets.connect(self._uri)
                 self.event_loop.create_task(self._run())
-                # asyncio.get_event_loop().create_task(self._run())
                 break
             except ConnectionRefusedError:
-                await asyncio.sleep(1.0)
+                await asyncio.sleep(1.0, loop=self.event_loop)
 
     async def _run(self):
         await self._handle_connection(self._socket)

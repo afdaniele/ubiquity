@@ -160,6 +160,10 @@ class TunnelIF:
             self.__logger__.setLevel(logging.DEBUG if verbose_logging else logging.INFO)
         return self.__logger__
 
+    @abstractmethod
+    def start(self):
+        raise NotImplementedError()
+
     def shutdown(self):
         self._is_shutdown = True
 
@@ -176,11 +180,11 @@ class TunnelIF:
         raise NotImplementedError()
 
     @abstractmethod
-    async def wave_out(self, wave: 'WaveIF'):
+    def wave_out(self, wave: 'WaveIF'):
         raise NotImplementedError()
 
     @abstractmethod
-    async def _send_wave(self, wave_raw: str):
+    def _send_wave(self, wave_raw: str):
         raise NotImplementedError()
 
     @abstractmethod

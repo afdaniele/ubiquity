@@ -64,19 +64,9 @@ class Shoebox(ShoeboxIF):
             str(wave), len(self._tunnels)
         ))
         for tunnel in self._tunnels:
-            # asyncio.get_event_loop().create_task(tunnel.wave_out(wave))
-
-
-            if isinstance(tunnel, AsyncTunnel):
-                asyncio.run_coroutine_threadsafe(
-                    tunnel.wave_out(wave), tunnel.event_loop
-                )
-            else:
-                asyncio.run_coroutine_threadsafe(
-                    tunnel.wave_out(wave), asyncio.get_event_loop()
-                )
-
-            # tunnel.wave_out(wave)
+            asyncio.run_coroutine_threadsafe(
+                tunnel.wave_out(wave), tunnel.event_loop
+            )
 
     def wait_on(self, request_wave: Union[str, 'WaveIF'], timeout: int = 0):
         if isinstance(request_wave, WaveIF):
