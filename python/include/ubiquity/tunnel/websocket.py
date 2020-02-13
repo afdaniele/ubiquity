@@ -69,7 +69,7 @@ class WebSocketServerTunnel(WebSocketTunnel):
         return 'WS:{:s}:{:d}'.format(self._bind_host, self._bind_port)
 
 
-class WebSocketClientTunnel(WebSocketTunnel):
+class WebSocketClientTunnel(WebSocketTunnel, AsyncTunnel):
 
     def __init__(self, server_host: str, server_port: int = 5005):
         super().__init__()
@@ -77,15 +77,17 @@ class WebSocketClientTunnel(WebSocketTunnel):
         self._server_port = server_port
         self._socket = None
         self._uri = 'ws://{:s}:{:d}'.format(self._server_host, self._server_port)
-        # self.event_loop.create_task(self._connect())
-        asyncio.get_event_loop().create_task(self._connect())
+        # asyncio.get_event_loop().create_task(self._connect())
+        # self.event_loop = asyncio.new_event_loop()
+        asyncio.run_coroutine_threadsafe(self._connect(), self.event_loop)
+        # self.event_loop.create_task()
 
     async def _connect(self):
         while True:
             try:
                 self._socket = await websockets.connect(self._uri)
-                # self.event_loop.create_task(self._run())
-                asyncio.get_event_loop().create_task(self._run())
+                self.event_loop.create_task(self._run())
+                # asyncio.get_event_loop().create_task(self._run())
                 break
             except ConnectionRefusedError:
                 await asyncio.sleep(1.0)

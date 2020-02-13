@@ -18,14 +18,16 @@ def run_from_ipython():
 if __name__ == '__main__':
 
     sbox = Shoebox('general2')
+
     tunnel = WebSocketClientTunnel('localhost')
+
     sbox.attach(tunnel)
 
-    print('Spinning the event_loop')
-    if run_from_ipython():
-        import threading
-
-        t = threading.Thread(target=asyncio.get_event_loop().run_forever)
-        t.start()
-    else:
-        asyncio.get_event_loop().run_forever()
+    # print('Spinning the event_loop')
+    # if run_from_ipython():
+    #     import threading
+    #
+    #     t = threading.Thread(target=asyncio.get_event_loop().run_forever)
+    #     t.start()
+    # else:
+    #     asyncio.get_event_loop().run_forever()

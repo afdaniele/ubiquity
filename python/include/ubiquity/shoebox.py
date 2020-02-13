@@ -3,7 +3,7 @@ import asyncio
 from typing import Any, Union
 
 from .types import QuantumID, ShoeboxIF, WaveIF
-from .tunnel import Tunnel
+from .tunnel import Tunnel, AsyncTunnel
 from .serialization.Shoebox_pb2 import ShoeboxPB
 
 
@@ -65,9 +65,17 @@ class Shoebox(ShoeboxIF):
         ))
         for tunnel in self._tunnels:
             # asyncio.get_event_loop().create_task(tunnel.wave_out(wave))
-            asyncio.run_coroutine_threadsafe(
-                tunnel.wave_out(wave), asyncio.get_event_loop()
-            )
+
+
+            if isinstance(tunnel, AsyncTunnel):
+                asyncio.run_coroutine_threadsafe(
+                    tunnel.wave_out(wave), tunnel.event_loop
+                )
+            else:
+                asyncio.run_coroutine_threadsafe(
+                    tunnel.wave_out(wave), asyncio.get_event_loop()
+                )
+
             # tunnel.wave_out(wave)
 
     def wait_on(self, request_wave: Union[str, 'WaveIF'], timeout: int = 0):
