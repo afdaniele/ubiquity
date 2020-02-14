@@ -8,4 +8,5 @@ protobuf:
 		protoc \
 			-I="${ROOT_DIR}" \
 			--python_out="${ROOT_DIR}/ubiquity/python/include" \
+			--js_out=library=ubiquity/serialization/protobuf,binary:${ROOT_DIR}/ubiquity/javascript/include \
 			{} \;
