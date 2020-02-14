@@ -1,8 +1,8 @@
-from types import TracebackType
+import traceback
 from typing import Union
+from types import TracebackType
 
 from . import Wave
-from ubiquity.exceptions import WaveParseError
 from ubiquity.types import ShoeboxIF, WaveIF, QuantumID
 from ubiquity.serialization.Wave_pb2 import WavePB, ErrorPB
 
@@ -14,64 +14,46 @@ class ErrorWave(Wave):
                  shoebox: Union[ShoeboxIF, None],
                  quantum_id: Union[QuantumID, None],
                  request_wave: Union[str, None],
-                 etype: str,
-                 emessage: str,
-                 etrace: str,
+                 error: str,
                  wave_id: Union[str, None] = None):
         super().__init__(shoebox, quantum_id, request_wave, wave_id=wave_id)
-        self._error_type = etype
-        self._error_message = emessage
-        self._error_trace = etrace
+        self._error = error
 
     @property
-    def error_type(self) -> str:
-        return self._error_type
+    def error(self) -> str:
+        return self._error
 
-    @property
-    def error_message(self) -> str:
-        return self._error_message
-
-    @property
-    def error_trace(self) -> str:
-        return self._error_trace
-
-    def hit(self, shoebox: Union[None, ShoeboxIF]) -> WaveIF:
-        return None
+    def hit(self, shoebox: Union[None, ShoeboxIF]):
+        pass
 
     def _serialize(self) -> ErrorPB:
-        return ErrorPB(
-            etype=self._error_type,
-            emessage=self._error_message,
-            etrace=self._error_trace
-        )
+        return ErrorPB(error=self.error)
 
     @staticmethod
     def deserialize(wave_pb: Union[WavePB, ErrorPB]) -> 'ErrorWave':
-        try:
-            if isinstance(wave_pb, ErrorPB):
-                return ErrorWave(
-                    None,
-                    None,
-                    None,
-                    wave_pb.etype,
-                    wave_pb.emessage,
-                    wave_pb.etrace
-                )
-            if isinstance(wave_pb, WavePB):
-                return ErrorWave(
-                    wave_pb.header.shoebox,
-                    wave_pb.header.quantum_id,
-                    wave_pb.header.request_wave,
-                    wave_pb.error.etype,
-                    wave_pb.error.emessage,
-                    wave_pb.error.etrace,
-                    wave_id=wave_pb.header.id
-                )
-        except:
-            raise WaveParseError()
+        if isinstance(wave_pb, ErrorPB):
+            return ErrorWave(
+                None,
+                None,
+                None,
+                wave_pb.error
+            )
+        if isinstance(wave_pb, WavePB):
+            return ErrorWave(
+                wave_pb.header.shoebox,
+                wave_pb.header.quantum_id,
+                wave_pb.header.request_wave,
+                wave_pb.error.error,
+                wave_id=wave_pb.header.id
+            )
 
     @staticmethod
     def from_exception(request_wave: Union[str, None], ex_type: BaseException,
                        ex_value: Exception, ex_traceback: TracebackType) -> 'ErrorWave':
-        # turn exception into an ErrorRespondeWave
-        return ErrorWave(None, None, request_wave, str(ex_type), str(ex_value), str(ex_traceback))
+        # turn exception into an ErrorWave
+        return ErrorWave(
+            None,
+            None,
+            request_wave,
+            str(traceback.format_exception(ex_type, ex_value, ex_traceback))
+        )

@@ -7,6 +7,7 @@ from ubiquity.types import \
     Method, \
     QuantumID, \
     ShoeboxIF, \
+    WaveIF, \
     QuantumStub
 from ubiquity.serialization.Method_pb2 import ParameterTypePB
 
@@ -15,6 +16,9 @@ from ubiquity.waves.field import \
     FieldGetResponseWave,\
     FieldSetRequestWave,\
     FieldSetResponseWave
+from ubiquity.waves.method import \
+    MethodCallRequestWave, \
+    MethodCallResponseWave
 from ubiquity.waves.error import ErrorWave
 
 SIMPLE_PARAMETER_TYPES = [
@@ -62,25 +66,29 @@ class QuantumStubBuilder:
         return stub_class()
 
 
+def _send_and_wait(shoebox: ShoeboxIF, leaving_wave: WaveIF, timeout: int = DEFAULT_TIMEOUT_SECS):
+    shoebox.wave_out(leaving_wave)
+    try:
+        _wave = shoebox.wait_on(leaving_wave.id, timeout=timeout)
+    except TimeoutError:
+        leaving_wave.logger.info('The request timed out!')
+        return
+    # on error
+    if isinstance(_wave, ErrorWave):
+        _wave.logger.error('\n' + _wave.error)
+        return
+    return _wave
+
+
 def _get_getter_property_decorator(shoebox: ShoeboxIF, quantum_id: QuantumID,
                                    field_name: str) -> Callable:
     def _callable(_):
         wave_ = FieldGetRequestWave(shoebox, quantum_id, field_name)
-        shoebox.wave_out(wave_)
-        try:
-            _wave = shoebox.wait_on(wave_.id, timeout=DEFAULT_TIMEOUT_SECS)
-        except TimeoutError:
-            wave_.logger.info('The request timed out!')
-            return
-        # on error
-        if isinstance(_wave, ErrorWave):
-            _wave.logger.error('{:s}: {:s}\nTraceback:\n{:s}'.format(
-                _wave.error_type, _wave.error_message, _wave.error_trace
-            ))
-            return
-        # on success
-        assert isinstance(_wave, FieldGetResponseWave)
-        return _wave.field_value
+        _wave = _send_and_wait(shoebox, wave_)
+        if _wave is not None:
+            # on success
+            assert isinstance(_wave, FieldGetResponseWave)
+            return _wave.field_value
 
     return _callable
 
@@ -88,23 +96,11 @@ def _get_getter_property_decorator(shoebox: ShoeboxIF, quantum_id: QuantumID,
 def _get_setter_property_decorator(shoebox: ShoeboxIF, quantum_id: QuantumID,
                                    field_name: str) -> Callable:
     def _callable(_, value: Any):
-        # wave_ = FieldSetRequestWave(shoebox, quantum_id, field_name)
-        # shoebox.wave_out(wave_)
-        # try:
-        #     _wave = shoebox.wait_on(wave_.id, timeout=DEFAULT_TIMEOUT_SECS)
-        # except TimeoutError:
-        #     wave_.logger.info('The request timed out!')
-        #     return
-        # # on error
-        # if isinstance(_wave, ErrorWave):
-        #     _wave.logger.error('{:s}: {:s}\nTraceback:\n{:s}'.format(
-        #         _wave.error_type, _wave.error_message, _wave.error_trace
-        #     ))
-        #     return
-        # # on success
-        # assert isinstance(_wave, FieldGetResponseWave)
-        # return _wave.field_value
-        pass
+        wave_ = FieldSetRequestWave(shoebox, quantum_id, field_name, value)
+        _wave = _send_and_wait(shoebox, wave_)
+        if _wave is not None:
+            # on success
+            assert isinstance(_wave, FieldSetResponseWave)
 
     return _callable
 
@@ -117,7 +113,7 @@ def _get_method_decorator(shoebox: ShoeboxIF,
         # nonlocal quantum_id, method_name, method_args
         args = OrderedDict()
         t = len(_args)
-        # map simple args (either positional or keywords)
+        # map positional args
         simple_args = list(filter(lambda a: a.type in SIMPLE_PARAMETER_TYPES, method_args))
         num_simple_args = len(simple_args)
         f = min(num_simple_args, t)
@@ -131,11 +127,14 @@ def _get_method_decorator(shoebox: ShoeboxIF,
         # add kwargs
         var_keyword_args = [a for a in method_args if a.type == ParameterTypePB.VAR_KEYWORD]
         if var_keyword_args:
-            args[var_keyword_args[0].name] = _kwargs
-        # this is the networking part
-        print('You called [Quantum:{:d}].{:s}({:s})'.format(
-            quantum_id, method_name,
-            ', '.join(['{:s}={:s}'.format(k, str(v)) for k, v in args.items()])
-        ))
+            for k, v in _kwargs:
+                args[k] = v
+        # ---
+        wave_ = MethodCallRequestWave(shoebox, quantum_id, method_name, args)
+        _wave = _send_and_wait(shoebox, wave_)
+        if _wave is not None:
+            # on success
+            assert isinstance(_wave, MethodCallResponseWave)
+            return _wave.return_value
 
     return _callable

@@ -34,12 +34,9 @@ class ShoeboxWave(Wave):
 
     @staticmethod
     def deserialize(wave_pb: Union[WavePB, ShoeboxPB]) -> 'ShoeboxWave':
-        # try:
         if isinstance(wave_pb, ShoeboxPB):
             shoebox = Shoebox.deserialize(wave_pb)
             return ShoeboxWave(shoebox, None)
         if isinstance(wave_pb, WavePB) and wave_pb.header.type == WaveTypePB.SHOEBOX:
             shoebox = Shoebox.deserialize(wave_pb.shoebox)
             return ShoeboxWave(shoebox, wave_pb.header.request_wave, wave_id=wave_pb.header.id)
-        # except Exception:
-        #     raise WaveParseError()

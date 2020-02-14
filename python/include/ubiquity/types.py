@@ -35,6 +35,7 @@ param_type_map = {
     '__var_positional__': ParameterTypePB.VAR_POSITIONAL,
     '__var_keyword__': ParameterTypePB.VAR_KEYWORD
 }
+param_type_map_i = dict(zip(param_type_map.values(), param_type_map.keys()))
 
 EXCLUDED_METHODS = [
     '__new__',
@@ -367,8 +368,23 @@ class Quantum:
 
     @staticmethod
     def deserialize(quantum_pb: QuantumPB) -> 'Quantum':
-        # TODO: implement this
-        return None
+        from ubiquity.serialization.any import deserialize_any
+        quantum = Quantum(quantum_pb.id)
+        for field in quantum_pb.fields:
+            quantum.add_field(Field(field.name, field.type))
+        for method in quantum_pb.methods:
+            quantum.add_method(Method(
+                method.name,
+                [
+                    Parameter(
+                        p.name,
+                        param_type_map_i[p.type],
+                        p.annotation,
+                        deserialize_any(p.default_value)
+                    ) for p in method.args
+                ] if method.args is not None else []
+            ))
+        return quantum
 
     def __str__(self):
         return 'QT+{:d}'.format(self.id)

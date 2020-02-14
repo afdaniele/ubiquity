@@ -23,6 +23,8 @@ def serialize_any(value: Any) -> Tuple[Union[QuantumID, None], Any]:
         quantum_id, quantum = Quantum.from_object(value)
         quantum = quantum.serialize()
     # ---
+    # TODO: serialize NULL
+    # TODO: recursively serialize dict, list, and tuples
     return quantum_id, quantum
 
 

@@ -4,7 +4,7 @@ from abc import ABC
 from websockets import WebSocketCommonProtocol
 from websockets.exceptions import ConnectionClosedError
 
-from . import AsyncTunnel, Tunnel
+from . import AsyncTunnel
 from ubiquity.waves.shoebox import ShoeboxWave
 from ubiquity.waves import Wave
 from ubiquity.serialization.wave import serialize_wave
@@ -48,7 +48,8 @@ class WebSocketServerTunnel(WebSocketTunnel):
         self._bind_host = bind_host
         self._bind_port = bind_port
         self._links = []
-        server = websockets.serve(self.handler, self._bind_host, self._bind_port, loop=self.event_loop)
+        server = websockets.serve(self.handler, self._bind_host, self._bind_port,
+                                  loop=self.event_loop)
         asyncio.ensure_future(server, loop=self.event_loop)
         self.start()
 
@@ -62,7 +63,8 @@ class WebSocketServerTunnel(WebSocketTunnel):
 
     async def _send_wave(self, wave_raw: str):
         if self._links:
-            await asyncio.wait([client.send(wave_raw) for client in self._links], loop=self.event_loop)
+            await asyncio.wait([client.send(wave_raw) for client in self._links],
+                               loop=self.event_loop)
 
     def __str__(self):
         return 'WS:{:s}:{:d}'.format(self._bind_host, self._bind_port)

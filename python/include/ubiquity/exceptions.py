@@ -1,5 +1,5 @@
-class WaveParseError(Exception):
-    pass
+# class WaveParseError(Exception):
+#     pass
 
 
 class JSONParseError(Exception):

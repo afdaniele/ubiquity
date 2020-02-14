@@ -1,10 +1,12 @@
 import time
+import traceback
 import asyncio
 from typing import Any, Union
 
 from .types import QuantumID, ShoeboxIF, WaveIF
-from .tunnel import Tunnel, AsyncTunnel
+from .tunnel import Tunnel
 from .serialization.Shoebox_pb2 import ShoeboxPB
+from .waves.error import ErrorWave
 
 
 class Shoebox(ShoeboxIF):
@@ -49,8 +51,11 @@ class Shoebox(ShoeboxIF):
 
     def wave_in(self, wave: 'WaveIF'):
         if wave.request_wave is None or wave.request_wave == '':
-            self.logger.debug('Wave {:s} hitting the shoebox.'.format(str(wave)))
-            res = wave.hit(self)
+            self.logger.debug('Wave {:s} hit the shoebox.'.format(str(wave)))
+            try:
+                res = wave.hit(self)
+            except Exception:
+                res = ErrorWave(self, None, wave.id, traceback.format_exc())
             if isinstance(res, WaveIF):
                 self.wave_out(res)
         else:

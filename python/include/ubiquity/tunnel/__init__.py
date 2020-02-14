@@ -1,5 +1,5 @@
-import sys
 import asyncio
+import traceback
 import threading
 from abc import ABC, abstractmethod
 from typing import Union
@@ -8,7 +8,7 @@ from ubiquity.waves import Wave
 from ubiquity.waves.error import ErrorWave
 from ubiquity.types import TunnelIF, ShoeboxIF
 
-from ubiquity.serialization.Wave_pb2 import WavePB, _WAVETYPEPB
+from ubiquity.serialization.Wave_pb2 import WavePB
 
 
 class Tunnel(TunnelIF, ABC):
@@ -32,21 +32,28 @@ class Tunnel(TunnelIF, ABC):
             wave_pb.ParseFromString(wave_raw)
             wave = Wave.deserialize(wave_pb)
             self.logger.debug('Received {:s}.'.format(str(wave)))
+
+            # TODO: remove =>
+            from google.protobuf.text_format import MessageToString
+            print(MessageToString(wave_pb))
+            # TODO: remove <=
+
             # we have a valid wave, push it to the shoebox
             return self._shoebox.wave_in(wave)
-        except:
-            ex_type, ex_value, ex_traceback = sys.exc_info()
-            self.logger.error(ex_type)
+        except Exception:
+            self.logger.error(traceback.format_exc())
             self.logger.debug('Received invalid wave.')
 
     def wave_out(self, wave: Wave):
         wave_pb = wave.serialize()
         wave_raw = wave_pb.SerializeToString()
         self.logger.debug('Sending out {:s}.'.format(str(wave)))
+
         # TODO: remove =>
         from google.protobuf.text_format import MessageToString
         print(MessageToString(wave_pb))
         # TODO: remove <=
+
         self._send_wave(wave_raw)
 
 
@@ -74,10 +81,12 @@ class AsyncTunnel(Tunnel, ABC):
         wave_pb = wave.serialize()
         wave_raw = wave_pb.SerializeToString()
         self.logger.debug('Sending out {:s}.'.format(str(wave)))
+
         # TODO: remove =>
         from google.protobuf.text_format import MessageToString
         print(MessageToString(wave_pb))
         # TODO: remove <=
+
         await self._send_wave(wave_raw)
 
     @abstractmethod

@@ -1,5 +1,6 @@
-from typing import Union, Any
+import traceback
 from abc import ABC
+from typing import Union, Any
 
 from ubiquity.types import ShoeboxIF, WaveIF, QuantumID
 from ubiquity.serialization.Wave_pb2 import WavePB
@@ -18,7 +19,13 @@ class Wave(WaveIF, ABC):
     @staticmethod
     def deserialize(wave_pb: WavePB) -> WaveIF:
         from ubiquity.serialization.wave import deserialize_wave
-        return deserialize_wave(wave_pb)
+        try:
+            return deserialize_wave(wave_pb)
+        except Exception:
+            traceback.print_exc()
 
     def serialize_data(self) -> Any:
-        return self._serialize()
+        try:
+            return self._serialize()
+        except Exception:
+            traceback.print_exc()

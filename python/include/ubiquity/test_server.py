@@ -7,7 +7,7 @@ from ubiquity.tunnel.websocket import WebSocketServerTunnel
 
 
 if __name__ == '__main__':
-    from goprocam import GoProCamera
+    # from goprocam import GoProCamera
     from types import SimpleNamespace
 
     # goproCamera = GoProCamera.GoPro()

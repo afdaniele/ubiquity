@@ -25,7 +25,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n!ubiquity/serialization/Wave.proto\x1a\x19google/protobuf/any.proto\x1a$ubiquity/serialization/Shoebox.proto\x1a\"ubiquity/serialization/Field.proto\x1a#ubiquity/serialization/Method.proto\"\x9d\x03\n\x06WavePB\x12\x1d\n\x06header\x18\x01 \x01(\x0b\x32\r.WaveHeaderPB\x12\x1d\n\x07shoebox\x18\n \x01(\x0b\x32\n.ShoeboxPBH\x00\x12/\n\x11\x66ield_get_request\x18\x0b \x01(\x0b\x32\x12.FieldGetRequestPBH\x00\x12\x31\n\x12\x66ield_get_response\x18\x0c \x01(\x0b\x32\x13.FieldGetResponsePBH\x00\x12/\n\x11\x66ield_set_request\x18\r \x01(\x0b\x32\x12.FieldSetRequestPBH\x00\x12\x31\n\x12\x66ield_set_response\x18\x0e \x01(\x0b\x32\x13.FieldSetResponsePBH\x00\x12\x33\n\x13method_call_request\x18\x0f \x01(\x0b\x32\x14.MethodCallRequestPBH\x00\x12\x35\n\x14method_call_response\x18\x10 \x01(\x0b\x32\x15.MethodCallResponsePBH\x00\x12\x19\n\x05\x65rror\x18\x11 \x01(\x0b\x32\x08.ErrorPBH\x00\x42\x06\n\x04\x64\x61ta\"p\n\x0cWaveHeaderPB\x12\n\n\x02id\x18\x01 \x01(\t\x12\x19\n\x04type\x18\x02 \x01(\x0e\x32\x0b.WaveTypePB\x12\x0f\n\x07shoebox\x18\x03 \x01(\t\x12\x12\n\nquantum_id\x18\x04 \x01(\x03\x12\x14\n\x0crequest_wave\x18\x05 \x01(\t\",\n\x11\x46ieldGetRequestPB\x12\x17\n\x05\x66ield\x18\x01 \x01(\x0b\x32\x08.FieldPB\"@\n\x12\x46ieldGetResponsePB\x12*\n\x0creturn_value\x18\x02 \x01(\x0b\x32\x14.google.protobuf.Any\"W\n\x11\x46ieldSetRequestPB\x12\x17\n\x05\x66ield\x18\x01 \x01(\x0b\x32\x08.FieldPB\x12)\n\x0b\x66ield_value\x18\x02 \x01(\x0b\x32\x14.google.protobuf.Any\"\x14\n\x12\x46ieldSetResponsePB\"Q\n\x13MethodCallRequestPB\x12\x19\n\x06method\x18\x01 \x01(\x0b\x32\t.MethodPB\x12\x1f\n\targuments\x18\x02 \x03(\x0b\x32\x0c.ParameterPB\"B\n\x14MethodCallResponsePB\x12*\n\x0creturn_value\x18\x02 \x01(\x0b\x32\x14.google.protobuf.Any\":\n\x07\x45rrorPB\x12\r\n\x05\x65type\x18\x01 \x01(\t\x12\x10\n\x08\x65message\x18\x02 \x01(\t\x12\x0e\n\x06\x65trace\x18\x03 \x01(\t*\xcb\x01\n\nWaveTypePB\x12\x08\n\x04NONE\x10\x00\x12\x0b\n\x07SHOEBOX\x10\x01\x12\x18\n\x14\x46IELD_GETTER_REQUEST\x10\x02\x12\x19\n\x15\x46IELD_GETTER_RESPONSE\x10\x03\x12\x18\n\x14\x46IELD_SETTER_REQUEST\x10\x04\x12\x19\n\x15\x46IELD_SETTER_RESPONSE\x10\x05\x12\x17\n\x13METHOD_CALL_REQUEST\x10\x06\x12\x18\n\x14METHOD_CALL_RESPONSE\x10\x07\x12\t\n\x05\x45RROR\x10\x14\x62\x06proto3')
+  serialized_pb=_b('\n!ubiquity/serialization/Wave.proto\x1a\x19google/protobuf/any.proto\x1a$ubiquity/serialization/Shoebox.proto\x1a\"ubiquity/serialization/Field.proto\x1a#ubiquity/serialization/Method.proto\"\x9d\x03\n\x06WavePB\x12\x1d\n\x06header\x18\x01 \x01(\x0b\x32\r.WaveHeaderPB\x12\x1d\n\x07shoebox\x18\n \x01(\x0b\x32\n.ShoeboxPBH\x00\x12/\n\x11\x66ield_get_request\x18\x0b \x01(\x0b\x32\x12.FieldGetRequestPBH\x00\x12\x31\n\x12\x66ield_get_response\x18\x0c \x01(\x0b\x32\x13.FieldGetResponsePBH\x00\x12/\n\x11\x66ield_set_request\x18\r \x01(\x0b\x32\x12.FieldSetRequestPBH\x00\x12\x31\n\x12\x66ield_set_response\x18\x0e \x01(\x0b\x32\x13.FieldSetResponsePBH\x00\x12\x33\n\x13method_call_request\x18\x0f \x01(\x0b\x32\x14.MethodCallRequestPBH\x00\x12\x35\n\x14method_call_response\x18\x10 \x01(\x0b\x32\x15.MethodCallResponsePBH\x00\x12\x19\n\x05\x65rror\x18\x11 \x01(\x0b\x32\x08.ErrorPBH\x00\x42\x06\n\x04\x64\x61ta\"p\n\x0cWaveHeaderPB\x12\n\n\x02id\x18\x01 \x01(\t\x12\x19\n\x04type\x18\x02 \x01(\x0e\x32\x0b.WaveTypePB\x12\x0f\n\x07shoebox\x18\x03 \x01(\t\x12\x12\n\nquantum_id\x18\x04 \x01(\x03\x12\x14\n\x0crequest_wave\x18\x05 \x01(\t\",\n\x11\x46ieldGetRequestPB\x12\x17\n\x05\x66ield\x18\x01 \x01(\x0b\x32\x08.FieldPB\"@\n\x12\x46ieldGetResponsePB\x12*\n\x0creturn_value\x18\x02 \x01(\x0b\x32\x14.google.protobuf.Any\",\n\x11\x46ieldSetRequestPB\x12\x17\n\x05\x66ield\x18\x01 \x01(\x0b\x32\x08.FieldPB\"\x14\n\x12\x46ieldSetResponsePB\"Q\n\x13MethodCallRequestPB\x12\x19\n\x06method\x18\x01 \x01(\x0b\x32\t.MethodPB\x12\x1f\n\targuments\x18\x02 \x03(\x0b\x32\x0c.ParameterPB\"B\n\x14MethodCallResponsePB\x12*\n\x0creturn_value\x18\x02 \x01(\x0b\x32\x14.google.protobuf.Any\"\x18\n\x07\x45rrorPB\x12\r\n\x05\x65rror\x18\x01 \x01(\t*\xcb\x01\n\nWaveTypePB\x12\x08\n\x04NONE\x10\x00\x12\x0b\n\x07SHOEBOX\x10\x01\x12\x18\n\x14\x46IELD_GETTER_REQUEST\x10\x02\x12\x19\n\x15\x46IELD_GETTER_RESPONSE\x10\x03\x12\x18\n\x14\x46IELD_SETTER_REQUEST\x10\x04\x12\x19\n\x15\x46IELD_SETTER_RESPONSE\x10\x05\x12\x17\n\x13METHOD_CALL_REQUEST\x10\x06\x12\x18\n\x14METHOD_CALL_RESPONSE\x10\x07\x12\t\n\x05\x45RROR\x10\x14\x62\x06proto3')
   ,
   dependencies=[google_dot_protobuf_dot_any__pb2.DESCRIPTOR,ubiquity_dot_serialization_dot_Shoebox__pb2.DESCRIPTOR,ubiquity_dot_serialization_dot_Field__pb2.DESCRIPTOR,ubiquity_dot_serialization_dot_Method__pb2.DESCRIPTOR,])
 
@@ -74,8 +74,8 @@ _WAVETYPEPB = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1140,
-  serialized_end=1343,
+  serialized_start=1063,
+  serialized_end=1266,
 )
 _sym_db.RegisterEnumDescriptor(_WAVETYPEPB)
 
@@ -317,13 +317,6 @@ _FIELDSETREQUESTPB = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='field_value', full_name='FieldSetRequestPB.field_value', index=1,
-      number=2, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -337,7 +330,7 @@ _FIELDSETREQUESTPB = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=817,
-  serialized_end=904,
+  serialized_end=861,
 )
 
 
@@ -360,8 +353,8 @@ _FIELDSETRESPONSEPB = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=906,
-  serialized_end=926,
+  serialized_start=863,
+  serialized_end=883,
 )
 
 
@@ -398,8 +391,8 @@ _METHODCALLREQUESTPB = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=928,
-  serialized_end=1009,
+  serialized_start=885,
+  serialized_end=966,
 )
 
 
@@ -429,8 +422,8 @@ _METHODCALLRESPONSEPB = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1011,
-  serialized_end=1077,
+  serialized_start=968,
+  serialized_end=1034,
 )
 
 
@@ -442,22 +435,8 @@ _ERRORPB = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='etype', full_name='ErrorPB.etype', index=0,
+      name='error', full_name='ErrorPB.error', index=0,
       number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='emessage', full_name='ErrorPB.emessage', index=1,
-      number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='etrace', full_name='ErrorPB.etrace', index=2,
-      number=3, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -474,8 +453,8 @@ _ERRORPB = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1079,
-  serialized_end=1137,
+  serialized_start=1036,
+  serialized_end=1060,
 )
 
 _WAVEPB.fields_by_name['header'].message_type = _WAVEHEADERPB
@@ -515,7 +494,6 @@ _WAVEHEADERPB.fields_by_name['type'].enum_type = _WAVETYPEPB
 _FIELDGETREQUESTPB.fields_by_name['field'].message_type = ubiquity_dot_serialization_dot_Field__pb2._FIELDPB
 _FIELDGETRESPONSEPB.fields_by_name['return_value'].message_type = google_dot_protobuf_dot_any__pb2._ANY
 _FIELDSETREQUESTPB.fields_by_name['field'].message_type = ubiquity_dot_serialization_dot_Field__pb2._FIELDPB
-_FIELDSETREQUESTPB.fields_by_name['field_value'].message_type = google_dot_protobuf_dot_any__pb2._ANY
 _METHODCALLREQUESTPB.fields_by_name['method'].message_type = ubiquity_dot_serialization_dot_Method__pb2._METHODPB
 _METHODCALLREQUESTPB.fields_by_name['arguments'].message_type = ubiquity_dot_serialization_dot_Method__pb2._PARAMETERPB
 _METHODCALLRESPONSEPB.fields_by_name['return_value'].message_type = google_dot_protobuf_dot_any__pb2._ANY
