@@ -54,7 +54,6 @@ message FieldGetResponsePB {
 
 message FieldSetRequestPB {
   FieldPB field = 1;
-  google.protobuf.Any field_value = 2;
 }
 
 
@@ -73,7 +72,5 @@ message MethodCallResponsePB {
 
 
 message ErrorPB {
-  string etype = 1;
-  string emessage = 2;
-  string etrace = 3;
+  string error = 1;
 }
