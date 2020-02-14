@@ -1,4 +1,4 @@
-from typing import Dict, Union, Any
+from typing import Union
 
 from . import Wave
 from ubiquity.types import ShoeboxIF
@@ -6,7 +6,6 @@ from ubiquity import Shoebox
 from ubiquity.serialization.Wave_pb2 import WavePB, WaveTypePB
 from ubiquity.serialization.Shoebox_pb2 import ShoeboxPB
 
-MethodArguments = Dict[str, Any]
 
 
 class ShoeboxWave(Wave):
@@ -20,11 +19,10 @@ class ShoeboxWave(Wave):
 
     def hit(self, shoebox: Union[None, ShoeboxIF]) -> None:
         # merge quanta
-        for _, quantum_builder in self.shoebox.quanta.items():
-            quantum_id = quantum_builder.get_quantum_id()
-            quantum = quantum_builder.build(shoebox)
+        for quantum_id, quantum in self.shoebox.quanta.items():
+            stub = quantum.build_stub(shoebox)
             # add stub to shoebox
-            shoebox.register_quantum(quantum, quantum_id)
+            shoebox.register_quantum(stub, quantum_id)
         # parse objects
         for object_name, object_id in self.shoebox.objects.items():
             shoebox.name_quantum(object_name, object_id)

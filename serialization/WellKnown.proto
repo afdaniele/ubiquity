@@ -3,27 +3,33 @@ syntax = "proto3";
 import "google/protobuf/any.proto";
 
 message IntPB {
-  int32 value = 1;
+  bool int = 1;
+  int32 value = 2;
 }
 
 message FloatPB {
-  float value = 1;
+  bool float = 1;
+  float value = 2;
 }
 
 message StringPB {
-  string value = 1;
+  bool string = 1;
+  string value = 2;
 }
 
 message BoolPB {
-  bool value = 1;
+  bool bool = 1;
+  bool value = 2;
 }
 
 message IterablePB {
-  repeated google.protobuf.Any values = 1;
+  bool iter = 1;
+  repeated google.protobuf.Any values = 2;
 }
 
 message MapPB {
-  map<string, google.protobuf.Any> items = 1;
+  bool map = 1;
+  map<string, google.protobuf.Any> items = 2;
 }
 
 message NonePB {

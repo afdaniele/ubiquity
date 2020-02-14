@@ -1,5 +1,4 @@
 from typing import Any, Tuple, Union
-from collections.abc import Iterable
 
 from google.protobuf.any_pb2 import Any as AnyPB
 
@@ -10,16 +9,15 @@ from ubiquity.serialization.WellKnown_pb2 import \
     StringPB, \
     BoolPB, \
     IterablePB, \
-    MapPB, \
     NonePB
 
 from ubiquity.serialization.Quantum_pb2 import QuantumPB
 
 PRIMITIVES = {
-    int: IntPB,
-    float: FloatPB,
-    str: StringPB,
-    bool: BoolPB
+    int: lambda v: IntPB(int=True, value=v),
+    float: lambda v: FloatPB(float=True, value=v),
+    str: lambda v: StringPB(string=True, value=v),
+    bool: lambda v: BoolPB(bool=True, value=v),
 }
 
 
@@ -27,8 +25,8 @@ def serialize_any(value: Any, shoebox: ShoeboxIF, primitives_only: bool = False)
     # TODO: recursively serialize dict
     if type(value) in PRIMITIVES:
         # built-in types
-        return None, PRIMITIVES[type(value)](value=value)
-    if not primitives_only and isinstance(value, Iterable):
+        return None, PRIMITIVES[type(value)](value)
+    if not primitives_only and isinstance(value, (list, set, tuple)):
         # Iterables
         lst = IterablePB()
         for i, e in enumerate(value):

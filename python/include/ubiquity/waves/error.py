@@ -3,7 +3,7 @@ from typing import Union
 from types import TracebackType
 
 from . import Wave
-from ubiquity.types import ShoeboxIF, WaveIF, QuantumID
+from ubiquity.types import ShoeboxIF, QuantumID
 from ubiquity.serialization.Wave_pb2 import WavePB, ErrorPB
 
 
