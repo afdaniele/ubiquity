@@ -1,6 +1,7 @@
 import os
 import uuid
 import logging
+from enum import Enum
 from typing import Iterable, Tuple, Dict, Any, Union
 from abc import abstractmethod
 from threading import Semaphore
@@ -15,27 +16,11 @@ from ubiquity.serialization.Quantum_pb2 import QuantumPB
 from ubiquity.serialization.Shoebox_pb2 import ShoeboxPB
 from ubiquity.serialization.Wave_pb2 import WavePB
 from ubiquity.serialization.Field_pb2 import FieldPB
-from ubiquity.serialization.Method_pb2 import ParameterPB, ParameterTypePB, MethodPB
+from ubiquity.serialization.Method_pb2 import ParameterPB, MethodPB
 
 
 QuantumID = int
 FieldType = Any
-ParameterType = Union[
-    '__default__',
-    '__positional__',
-    '__keyword__',
-    '__var_positional__',
-    '__var_keyword__'
-]
-
-param_type_map = {
-    '__default__': ParameterTypePB.DEFAULT,
-    '__positional__': ParameterTypePB.POSITIONAL,
-    '__keyword__': ParameterTypePB.KEYWORD,
-    '__var_positional__': ParameterTypePB.VAR_POSITIONAL,
-    '__var_keyword__': ParameterTypePB.VAR_KEYWORD
-}
-param_type_map_i = dict(zip(param_type_map.values(), param_type_map.keys()))
 
 EXCLUDED_METHODS = [
     '__new__',
@@ -59,6 +44,25 @@ class ShoeboxContent:
 
 class QuantumStub:
     pass
+
+
+class ParameterType(Enum):
+    # NOTE: This has to match the PB protocol
+    DEFAULT = 0
+    POSITIONAL = 1
+    KEYWORD = 2
+    VAR_POSITIONAL = 3
+    VAR_KEYWORD = 4
+
+    @staticmethod
+    def from_inspect_type(itype: _ParameterKind) -> 'ParameterType':
+        return {
+            _ParameterKind.POSITIONAL_OR_KEYWORD: ParameterType.DEFAULT,
+            _ParameterKind.POSITIONAL_ONLY: ParameterType.POSITIONAL,
+            _ParameterKind.KEYWORD_ONLY: ParameterType.KEYWORD,
+            _ParameterKind.VAR_POSITIONAL: ParameterType.VAR_POSITIONAL,
+            _ParameterKind.VAR_KEYWORD: ParameterType.VAR_KEYWORD
+        }[itype]
 
 
 class ShoeboxIF:
@@ -305,7 +309,7 @@ class Parameter:
     def serialize(self) -> ParameterPB:
         return ParameterPB(
             name=self.name,
-            type=param_type_map[self.type],
+            type=self.type.value,
             annotation=str(self.annotation),
             # default_value=self.default
         )
@@ -382,7 +386,7 @@ class Quantum:
                 [
                     Parameter(
                         p.name,
-                        param_type_map_i[p.type],
+                        ParameterType(p.type),
                         p.annotation,
                         deserialize_any(p.default_value)
                     ) for p in method.args
@@ -421,13 +425,7 @@ class Quantum:
                 continue
             method_args = []
             for arg_name, arg_info in method_signature.parameters.items():
-                arg_type = {
-                    _ParameterKind.POSITIONAL_OR_KEYWORD: '__default__',
-                    _ParameterKind.POSITIONAL_ONLY: '__positional__',
-                    _ParameterKind.VAR_POSITIONAL: '__var_positional__',
-                    _ParameterKind.KEYWORD_ONLY: '__keyword__',
-                    _ParameterKind.VAR_KEYWORD: '__var_keyword__',
-                }[arg_info.kind]
+                arg_type = ParameterType.from_inspect_type(arg_info.kind)
                 arg_annotation = arg_info.annotation if arg_info.annotation != _empty else ''
                 arg_default = arg_info.default if arg_info.default != _empty else None
                 arg = Parameter(arg_name, arg_type, arg_annotation, arg_default)
