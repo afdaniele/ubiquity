@@ -3,6 +3,8 @@ import traceback
 import asyncio
 from typing import Any, Union
 
+from google.protobuf.message import Message as MessagePB
+
 from .types import QuantumID, ShoeboxIF, WaveIF
 from .tunnel import Tunnel
 from .serialization.Shoebox_pb2 import ShoeboxPB
@@ -17,6 +19,9 @@ class Shoebox(ShoeboxIF):
     def register_quantum(self, obj: Any, quantum_id: QuantumID = None) -> QuantumID:
         if obj is None:
             raise ValueError('None not supported as quantum object')
+        if isinstance(obj, MessagePB):
+            raise ValueError('ProtoBuf objects are confined to the tunnel level. '
+                             'It should not have made this far up the pipeline. This is a bug.')
         if quantum_id is None:
             # get ID of the object (if not given)
             quantum_id = id(obj)

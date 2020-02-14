@@ -2,7 +2,7 @@ from collections import OrderedDict
 from typing import Dict, Union, Any, Iterable
 
 from . import Wave
-from ubiquity.types import ShoeboxIF, QuantumID
+from ubiquity.types import ShoeboxIF, QuantumID, Quantum
 from ubiquity.serialization.Wave_pb2 import WavePB, MethodCallRequestPB, MethodCallResponsePB
 from ubiquity.serialization.Method_pb2 import ParameterPB
 from ubiquity.serialization.any import serialize_any, deserialize_any
@@ -105,15 +105,13 @@ class MethodCallResponseWave(Wave):
         return self._return_value
 
     def hit(self, shoebox: Union[None, ShoeboxIF]) -> None:
-        pass
+        # turn Quantum objects into their corresponding QuantumStub(s)
+        self._return_value = Quantum.build_stubs(self.return_value, shoebox)
 
     def _serialize(self) -> MethodCallResponsePB:
         wave_pb = MethodCallResponsePB()
-        if self.return_value:
-            qid, q = serialize_any(self.return_value, self.shoebox)
-            if qid is not None:
-                self.shoebox.register_quantum(q, qid)
-            wave_pb.return_value.Pack(q)
+        _, quantum_pb = serialize_any(self.return_value, self.shoebox)
+        wave_pb.return_value.Pack(quantum_pb)
         return wave_pb
 
     @staticmethod

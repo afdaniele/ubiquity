@@ -1,7 +1,7 @@
 import os
 import uuid
 import logging
-from typing import Union, Iterable, Tuple, Callable, Any
+from typing import Union, Iterable, Tuple, Callable, Any, Dict
 from abc import abstractmethod
 
 from inspect import \
@@ -15,7 +15,6 @@ from ubiquity.serialization.Shoebox_pb2 import ShoeboxPB
 from ubiquity.serialization.Wave_pb2 import WavePB
 from ubiquity.serialization.Field_pb2 import FieldPB
 from ubiquity.serialization.Method_pb2 import ParameterPB, ParameterTypePB, MethodPB
-
 
 from threading import Semaphore
 
@@ -47,6 +46,9 @@ EXCLUDED_METHODS = [
 ]
 DEFAULT_TIMEOUT_SECS = 10
 
+PRIMITIVE_TYPES = (int, float, str, bool, None.__class__)
+ITERABLE_TYPES = (list, tuple, set)
+
 logging.basicConfig()
 verbose_logging = 'UBIQUITY_VERBOSE' in os.environ and bool(os.environ['UBIQUITY_VERBOSE'])
 
@@ -73,23 +75,23 @@ class ShoeboxIF:
         self._content = ShoeboxContent()
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self._name
 
     @property
-    def quanta(self):
+    def quanta(self) -> Dict[QuantumID, 'Quantum']:
         return self._quanta
 
     @property
-    def objects(self):
+    def objects(self) -> Dict[str, QuantumID]:
         return self._objects
 
     @property
-    def content(self):
+    def content(self) -> ShoeboxContent:
         return self._content
 
     @property
-    def logger(self):
+    def logger(self) -> logging.Logger:
         return self.__logger__
 
     @abstractmethod
@@ -137,7 +139,7 @@ class ShoeboxIF:
     def deserialize(shoebox_pb: ShoeboxPB) -> 'ShoeboxIF':
         raise NotImplementedError()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return 'SB[{:s}]'.format(self.name)
 
 
@@ -149,15 +151,15 @@ class TunnelIF:
         self.__logger__ = None
 
     @property
-    def shoebox(self):
+    def shoebox(self) -> ShoeboxIF:
         return self._shoebox
 
     @property
-    def is_shutdown(self):
+    def is_shutdown(self) -> bool:
         return self._is_shutdown
 
     @property
-    def logger(self):
+    def logger(self) -> logging.Logger:
         if not self.__logger__:
             self.__logger__ = logging.getLogger('TN\\{:s}/'.format(str(self)))
             self.__logger__.setLevel(logging.DEBUG if verbose_logging else logging.INFO)
@@ -191,7 +193,7 @@ class TunnelIF:
         raise NotImplementedError()
 
     @abstractmethod
-    def __str__(self):
+    def __str__(self) -> str:
         raise NotImplementedError()
 
 
@@ -227,7 +229,7 @@ class WaveIF:
         return self._request_wave
 
     @property
-    def logger(self):
+    def logger(self) -> logging.Logger:
         return self.__logger__
 
     @abstractmethod
@@ -251,7 +253,7 @@ class WaveIF:
     def serialize_data(self) -> Any:
         raise NotImplementedError()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return 'WV{{{:s}}}{:s}'.format(self.id[:8], self._type)
 
 
@@ -352,7 +354,7 @@ class Quantum:
         return self._methods
 
     @property
-    def logger(self):
+    def logger(self) -> logging.Logger:
         return self.__logger__
 
     def add_field(self, field: Field):
@@ -388,11 +390,18 @@ class Quantum:
             ))
         return quantum
 
-    def __str__(self):
+    def __str__(self) -> str:
         return 'QT+{:d}'.format(self.id)
 
     @staticmethod
     def from_object(obj: Any, quantum_id: QuantumID = None) -> Tuple[QuantumID, 'Quantum']:
+        # base case: already a quantum
+        if isinstance(obj, Quantum):
+            return obj.id, obj
+        # base case: quantumStubs are for local use only, cannot turn it back into a quantum
+        if isinstance(obj, QuantumStub):
+            raise ValueError('Objects of type QuantumStub cannot be turned back into a Quantum')
+        # if the ID is not given, a new one will be assigned
         if quantum_id is None:
             quantum_id = id(obj)
         # create stub for the object
@@ -428,7 +437,7 @@ class Quantum:
         # ---
         return quantum_id, stub
 
-    def build_stub(self, destination: ShoeboxIF):
+    def to_stub(self, destination: ShoeboxIF) -> QuantumStub:
         # build properties
         properties = {}
         for field in self._fields:
@@ -445,8 +454,23 @@ class Quantum:
         stub_class = type(class_name, (QuantumStub,), {**properties, **methods})
         return stub_class()
 
+    @staticmethod
+    def build_stubs(obj: Any, shoebox: ShoeboxIF) -> Any:
+        # primitives
+        if isinstance(obj, PRIMITIVE_TYPES):
+            return obj
+        # iterables
+        if isinstance(obj, ITERABLE_TYPES):
+            return type(obj)([Quantum.build_stubs(e, shoebox) for e in obj])
+        # Quantum
+        if isinstance(obj, Quantum):
+            return obj.to_stub(shoebox)
+        # ---
+        raise ValueError('Cannot build Stub for object of type {:s}'.format(str(type(obj))))
 
-def _send_and_wait(shoebox: ShoeboxIF, leaving_wave: WaveIF, timeout: int = DEFAULT_TIMEOUT_SECS):
+
+def _send_and_wait(shoebox: ShoeboxIF, leaving_wave: WaveIF,
+                   timeout: int = DEFAULT_TIMEOUT_SECS) -> Union[None, WaveIF]:
     # ---
     from ubiquity.waves.error import ErrorWave
     # ---

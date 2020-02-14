@@ -20,7 +20,7 @@ class ShoeboxWave(Wave):
     def hit(self, shoebox: Union[None, ShoeboxIF]) -> None:
         # merge quanta
         for quantum_id, quantum in self.shoebox.quanta.items():
-            stub = quantum.build_stub(shoebox)
+            stub = quantum.to_stub(shoebox)
             # add stub to shoebox
             shoebox.register_quantum(stub, quantum_id)
         # parse objects

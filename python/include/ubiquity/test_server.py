@@ -19,7 +19,10 @@ if __name__ == '__main__':
         return a + b + c
 
     def j():
-        return 0
+        return SimpleNamespace(a=22)
+
+    def n():
+        return None
 
     def k(*args):
         return 0
@@ -35,7 +38,21 @@ if __name__ == '__main__':
         h=fcn,
         j=j,
         k=k,
-        sum=sum
+        n=n,
+        sum=sum,
+        s=SimpleNamespace(a=22),
+        chain=SimpleNamespace(
+            l1=SimpleNamespace(
+                l2=SimpleNamespace(
+                    l3=SimpleNamespace(
+                        value=4,
+                        l4=SimpleNamespace(
+                            value=5
+                        )
+                    )
+                )
+            )
+        )
     )
 
     sbox = Shoebox('general')

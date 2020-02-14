@@ -1,8 +1,9 @@
 from typing import Any, Tuple, Union
 
 from google.protobuf.any_pb2 import Any as AnyPB
+from google.protobuf.message import Message as MessagePB
 
-from ubiquity.types import Quantum, QuantumID, ShoeboxIF
+from ubiquity.types import Quantum, QuantumID, ShoeboxIF, QuantumStub
 from ubiquity.serialization.WellKnown_pb2 import \
     IntPB, \
     FloatPB, \
@@ -21,7 +22,17 @@ PRIMITIVES = {
 }
 
 
-def serialize_any(value: Any, shoebox: ShoeboxIF, primitives_only: bool = False) -> Tuple[Union[QuantumID, None], Any]:
+def serialize_any(value: Any, shoebox: ShoeboxIF, primitives_only: bool = False) -> Tuple[Union[QuantumID, None], MessagePB]:
+    if isinstance(value, MessagePB):
+        raise ValueError('ProtoBuf objects are confined to the tunnel level. '
+                         'It should not have made this far up the pipeline. This is a bug.')
+    if isinstance(value, Quantum):
+        raise ValueError('Quantum objects cannot be re-serialized to form another Quantum. '
+                         'This should not have happened. This is a bug.')
+    if isinstance(value, QuantumStub):
+        raise ValueError('QuantumStub objects are for local use only and cannot be re-serialized '
+                         'back to a Quantum. This should not have happened. This is a bug.')
+    # ---
     # TODO: recursively serialize dict
     if type(value) in PRIMITIVES:
         # built-in types
@@ -39,14 +50,18 @@ def serialize_any(value: Any, shoebox: ShoeboxIF, primitives_only: bool = False)
         return None, NonePB(none=True)
     # Quantum object
     quantum_id, quantum = Quantum.from_object(value)
-    quantum = quantum.serialize()
+    quantum_pb = quantum.serialize()
     # add quantum to the shoebox
-    shoebox.register_quantum(quantum, quantum_id)
+    shoebox.register_quantum(value, quantum_id)
     # ---
-    return quantum_id, quantum
+    return quantum_id, quantum_pb
 
 
 def deserialize_any(msg: AnyPB) -> Any:
+    if not isinstance(msg, AnyPB):
+        raise ValueError('Only objects of type google.protobuf.any_pb2.AnyPB can be '
+                         'deserialized. This should not have happened. This is a bug.')
+    # ---
     # TODO: recursively deserialize dict
     types = [IntPB, FloatPB, StringPB, BoolPB]
     # built-in types
