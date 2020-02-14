@@ -69,6 +69,14 @@ class FieldGetResponseWave(Wave):
         return self._field_value
 
     def hit(self, shoebox: Union[None, ShoeboxIF]) -> None:
+        # TODO: this wave will also be used by the wait_on function
+        # TODO: this happens before that though, and this is where we take
+        # TODO: (recursively) any response in the shape of Quantum, call
+        # TODO: build_stub(shoebox) on them and register the stub against
+        # TODO: the shoebox. By doing this here, wait_on() can reuse the
+        # TODO: stub as a return value for the user.
+        # TODO: Do this for any incoming wave with return values.
+
         pass
 
     def _serialize(self) -> FieldGetResponsePB:

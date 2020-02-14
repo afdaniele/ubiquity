@@ -30,7 +30,7 @@ if __name__ == '__main__':
         c=set(),
         d={'asd': 74},
         e=[],
-        f=[1, 2, SimpleNamespace(k1=1, k2=3)],
+        f=[1, 2, [4, 5, [8, SimpleNamespace(a=22)], SimpleNamespace(k1=1, k2=3)]],
         g=lambda d: d,
         h=fcn,
         j=j,

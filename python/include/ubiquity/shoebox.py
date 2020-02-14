@@ -50,15 +50,16 @@ class Shoebox(ShoeboxIF):
         self.logger.debug('Tunnel /:s\\ detached.'.format(str(tunnel)))
 
     def wave_in(self, wave: 'WaveIF'):
-        if wave.request_wave is None or wave.request_wave == '':
-            self.logger.debug('Wave {:s} hit the shoebox.'.format(str(wave)))
-            try:
-                res = wave.hit(self)
-            except Exception:
-                res = ErrorWave(self, None, wave.id, traceback.format_exc())
-            if isinstance(res, WaveIF):
-                self.wave_out(res)
-        else:
+        # let the wave hit the shoebox and apply its changes
+        self.logger.debug('Wave {:s} hit the shoebox.'.format(str(wave)))
+        try:
+            res = wave.hit(self)
+        except Exception:
+            res = ErrorWave(self, None, wave.id, traceback.format_exc())
+        if isinstance(res, WaveIF):
+            self.wave_out(res)
+        # if this wave responds to a previous wave, put it in the queue
+        if wave.request_wave is not None and wave.request_wave != '':
             self.logger.debug('Wave {:s} responds to {:s}. Queued!'.format(
                 str(wave), wave.request_wave[:8]
             ))
