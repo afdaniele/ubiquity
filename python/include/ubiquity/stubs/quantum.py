@@ -58,7 +58,7 @@ class QuantumStubBuilder:
         methods = {}
         for method in self._methods:
             methods[method.name] = _get_method_decorator(
-                destination, self._quantum_id, method.name, method.args
+                destination, self._quantum_id, method.name
             )
         # create new class
         class_name = QuantumStub.__name__ + str(self._quantum_id)
@@ -107,30 +107,9 @@ def _get_setter_property_decorator(shoebox: ShoeboxIF, quantum_id: QuantumID,
 
 def _get_method_decorator(shoebox: ShoeboxIF,
                           quantum_id: QuantumID,
-                          method_name: str,
-                          method_args: Iterable[Parameter]) -> Callable:
+                          method_name: str) -> Callable:
     def _callable(_, *_args, **_kwargs):
-        # nonlocal quantum_id, method_name, method_args
-        args = OrderedDict()
-        t = len(_args)
-        # map positional args
-        simple_args = list(filter(lambda a: a.type in SIMPLE_PARAMETER_TYPES, method_args))
-        num_simple_args = len(simple_args)
-        f = min(num_simple_args, t)
-        for i in range(f):
-            args[simple_args[i].name] = _args[i]
-        # map all the extra parameters to *args (if *args is in the prototype)
-        var_positional_args = [a for a in method_args if a.type == ParameterTypePB.VAR_POSITIONAL]
-        if t > f and var_positional_args:
-            _star_arg = var_positional_args[0].name
-            args[_star_arg] = _args[f:]
-        # add kwargs
-        var_keyword_args = [a for a in method_args if a.type == ParameterTypePB.VAR_KEYWORD]
-        if var_keyword_args:
-            for k, v in _kwargs:
-                args[k] = v
-        # ---
-        wave_ = MethodCallRequestWave(shoebox, quantum_id, method_name, args)
+        wave_ = MethodCallRequestWave(shoebox, quantum_id, method_name, _args, _kwargs)
         _wave = _send_and_wait(shoebox, wave_)
         if _wave is not None:
             # on success

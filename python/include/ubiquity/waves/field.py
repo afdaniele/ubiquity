@@ -28,8 +28,7 @@ class FieldGetRequestWave(Wave):
 
     def hit(self, shoebox: Union[None, ShoeboxIF]) -> Wave:
         res = shoebox.quanta[self.quantum_id].__getattribute__(self.field_name)
-        quantum_id, quantum = serialize_any(res)
-        return FieldGetResponseWave(shoebox, quantum_id, self.id, quantum)
+        return FieldGetResponseWave(shoebox, None, self.id, res)
 
     def _serialize(self) -> FieldGetRequestPB:
         wave_pb = FieldGetRequestPB()
@@ -74,7 +73,8 @@ class FieldGetResponseWave(Wave):
 
     def _serialize(self) -> FieldGetResponsePB:
         wave_pb = FieldGetResponsePB()
-        wave_pb.return_value.Pack(self._field_value)
+        _, quantum = serialize_any(self.field_value, self.shoebox)
+        wave_pb.return_value.Pack(quantum)
         return wave_pb
 
     @staticmethod
@@ -123,7 +123,7 @@ class FieldSetRequestWave(Wave):
     def _serialize(self) -> FieldSetRequestPB:
         wave_pb = FieldSetRequestPB()
         wave_pb.field.name = self.field_name
-        qid, q = serialize_any(self.field_value)
+        qid, q = serialize_any(self.field_value, self.shoebox)
         if qid is not None:
             self.shoebox.register_quantum(q, qid)
         wave_pb.field.value.Pack(q)

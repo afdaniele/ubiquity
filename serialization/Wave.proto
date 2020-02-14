@@ -63,6 +63,7 @@ message FieldSetResponsePB {}
 message MethodCallRequestPB {
   MethodPB method = 1;
   repeated ParameterPB arguments = 2;
+  repeated ParameterPB kwarguments = 3;
 }
 
 

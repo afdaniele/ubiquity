@@ -1,17 +1,31 @@
 syntax = "proto3";
 
-message Int {
+import "google/protobuf/any.proto";
+
+message IntPB {
   int32 value = 1;
 }
 
-message Float {
+message FloatPB {
   float value = 1;
 }
 
-message String {
+message StringPB {
   string value = 1;
 }
 
-message Bool {
+message BoolPB {
   bool value = 1;
+}
+
+message IterablePB {
+  repeated google.protobuf.Any values = 1;
+}
+
+message MapPB {
+  map<string, google.protobuf.Any> items = 1;
+}
+
+message NonePB {
+  bool none = 1;
 }

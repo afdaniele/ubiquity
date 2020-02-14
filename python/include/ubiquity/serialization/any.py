@@ -1,41 +1,70 @@
 from typing import Any, Tuple, Union
+from collections.abc import Iterable
 
 from google.protobuf.any_pb2 import Any as AnyPB
 
-from ubiquity.types import Quantum, QuantumID
-from ubiquity.serialization.WellKnown_pb2 import Int, Float, String, Bool
+from ubiquity.types import Quantum, QuantumID, ShoeboxIF
+from ubiquity.serialization.WellKnown_pb2 import \
+    IntPB, \
+    FloatPB, \
+    StringPB, \
+    BoolPB, \
+    IterablePB, \
+    MapPB, \
+    NonePB
+
 from ubiquity.serialization.Quantum_pb2 import QuantumPB
 
-WELL_KNOWN_TYPE_MAP = {
-    int: Int,
-    float: Float,
-    str: String,
-    bool: Bool
+PRIMITIVES = {
+    int: IntPB,
+    float: FloatPB,
+    str: StringPB,
+    bool: BoolPB
 }
 
 
-def serialize_any(value: Any) -> Tuple[Union[QuantumID, None], Any]:
-    if type(value) in WELL_KNOWN_TYPE_MAP:
+def serialize_any(value: Any, shoebox: ShoeboxIF, primitives_only: bool = False) -> Tuple[Union[QuantumID, None], Any]:
+    # TODO: recursively serialize dict
+    if type(value) in PRIMITIVES:
         # built-in types
-        quantum_id, quantum = None, WELL_KNOWN_TYPE_MAP[type(value)](value=value)
-    else:
-        # Quantum object
-        quantum_id, quantum = Quantum.from_object(value)
-        quantum = quantum.serialize()
+        return None, PRIMITIVES[type(value)](value=value)
+    if not primitives_only and isinstance(value, Iterable):
+        # Iterables
+        lst = IterablePB()
+        for i, e in enumerate(value):
+            a = AnyPB()
+            a.Pack(serialize_any(e, shoebox)[1])
+            lst.values.append(a)
+        return None, lst
+    if value is None:
+        # None / null
+        return None, NonePB(none=True)
+    # Quantum object
+    quantum_id, quantum = Quantum.from_object(value)
+    quantum = quantum.serialize()
+    # add quantum to the shoebox
+    shoebox.register_quantum(quantum, quantum_id)
     # ---
-    # TODO: serialize NULL
-    # TODO: recursively serialize dict, list, and tuples
     return quantum_id, quantum
 
 
 def deserialize_any(msg: AnyPB) -> Any:
-    types = [Int, Float, String, Bool]
+    # TODO: recursively deserialize dict
+    types = [IntPB, FloatPB, StringPB, BoolPB]
     # built-in types
     for T in types:
         if msg.Is(T.DESCRIPTOR):
             data = T()
             msg.Unpack(data)
             return data.value
+    # Iterable
+    if msg.Is(IterablePB.DESCRIPTOR):
+        data = IterablePB()
+        msg.Unpack(data)
+        return [deserialize_any(e) for e in data.values]
+    # None / null
+    if msg.Is(NonePB.DESCRIPTOR):
+        return None
     # Quantum object
     if msg.Is(QuantumPB.DESCRIPTOR):
         data = QuantumPB()

@@ -15,15 +15,27 @@ if __name__ == '__main__':
     def fcn(a, b: str, c: int, *args, **kwargs) -> int:
         return 1
 
+    def sum(a, b, c):
+        return a + b + c
+
+    def j():
+        return 0
+
+    def k(*args):
+        return 0
+
     a = SimpleNamespace(
         a=5,
         b=None,
         c={},
         d={'asd': 74},
         e=[],
-        f=[1, 2],
+        f=[1, 2, SimpleNamespace(k1=1, k2=3)],
         g=lambda d: [],
-        h=fcn
+        h=fcn,
+        j=j,
+        k=k,
+        sum=sum
     )
 
     sbox = Shoebox('general')
