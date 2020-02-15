@@ -32,7 +32,11 @@ class Tunnel(TunnelIF, ABC):
         # parse incoming data
         try:
             wave_pb = WavePB()
-            wave_pb.ParseFromString(wave_raw)
+            try:
+                wave_pb.ParseFromString(wave_raw)
+            except TypeError:
+                self.logger.debug('Received invalid wave. Ignoring it.')
+                return
             wave = Wave.deserialize(wave_pb)
             self.logger.debug('Received {:s}.'.format(str(wave)))
             if DEBUG_MESSAGES:

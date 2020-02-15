@@ -131,11 +131,11 @@ class ShoeboxIF:
         raise NotImplementedError()
 
     @abstractmethod
-    def serialize(self) -> ShoeboxPB:
+    def destroy(self):
         raise NotImplementedError()
 
     @abstractmethod
-    def destroy(self):
+    def serialize(self) -> ShoeboxPB:
         raise NotImplementedError()
 
     @staticmethod
