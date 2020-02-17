@@ -338,7 +338,7 @@ class Method:
 
 class Quantum:
 
-    def __init__(self, quantum_id: int):
+    def __init__(self, quantum_id: QuantumID):
         self._id = quantum_id
         self._fields = []
         self._methods = []

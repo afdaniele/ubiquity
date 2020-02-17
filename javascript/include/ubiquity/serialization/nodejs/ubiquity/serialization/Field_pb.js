@@ -8,7 +8,7 @@
  */
 // GENERATED CODE -- DO NOT EDIT!
 
-var jspb = require('./google-protobuf');
+var jspb = require('google-protobuf');
 var goog = jspb;
 var global = Function('return this')();
 
@@ -167,9 +167,12 @@ proto.FieldPB.prototype.getName = function() {
 };
 
 
-/** @param {string} value */
+/**
+ * @param {string} value
+ * @return {!proto.FieldPB} returns this
+ */
 proto.FieldPB.prototype.setName = function(value) {
-  jspb.Message.setProto3StringField(this, 1, value);
+  return jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -182,9 +185,12 @@ proto.FieldPB.prototype.getType = function() {
 };
 
 
-/** @param {string} value */
+/**
+ * @param {string} value
+ * @return {!proto.FieldPB} returns this
+ */
 proto.FieldPB.prototype.setType = function(value) {
-  jspb.Message.setProto3StringField(this, 2, value);
+  return jspb.Message.setProto3StringField(this, 2, value);
 };
 
 

@@ -127,7 +127,7 @@ proto.ShoeboxPB.deserializeBinaryFromReader = function(msg, reader) {
     case 3:
       var value = msg.getObjectsMap();
       reader.readMessage(value, function(message, reader) {
-        jspb.Map.deserializeBinary(message, reader, jspb.BinaryReader.prototype.readString, jspb.BinaryReader.prototype.readInt64, null, "");
+        jspb.Map.deserializeBinary(message, reader, jspb.BinaryReader.prototype.readString, jspb.BinaryReader.prototype.readInt64, null, "", 0);
          });
       break;
     default:
@@ -190,9 +190,12 @@ proto.ShoeboxPB.prototype.getName = function() {
 };
 
 
-/** @param {string} value */
+/**
+ * @param {string} value
+ * @return {!proto.ShoeboxPB} returns this
+ */
 proto.ShoeboxPB.prototype.setName = function(value) {
-  jspb.Message.setProto3StringField(this, 1, value);
+  return jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -206,9 +209,12 @@ proto.ShoeboxPB.prototype.getQuantaList = function() {
 };
 
 
-/** @param {!Array<!proto.QuantumPB>} value */
+/**
+ * @param {!Array<!proto.QuantumPB>} value
+ * @return {!proto.ShoeboxPB} returns this
+*/
 proto.ShoeboxPB.prototype.setQuantaList = function(value) {
-  jspb.Message.setRepeatedWrapperField(this, 2, value);
+  return jspb.Message.setRepeatedWrapperField(this, 2, value);
 };
 
 
@@ -224,9 +230,10 @@ proto.ShoeboxPB.prototype.addQuanta = function(opt_value, opt_index) {
 
 /**
  * Clears the list making it empty but non-null.
+ * @return {!proto.ShoeboxPB} returns this
  */
 proto.ShoeboxPB.prototype.clearQuantaList = function() {
-  this.setQuantaList([]);
+  return this.setQuantaList([]);
 };
 
 
@@ -245,10 +252,11 @@ proto.ShoeboxPB.prototype.getObjectsMap = function(opt_noLazyCreate) {
 
 /**
  * Clears values from the map. The map will be non-null.
+ * @return {!proto.ShoeboxPB} returns this
  */
 proto.ShoeboxPB.prototype.clearObjectsMap = function() {
   this.getObjectsMap().clear();
-};
+  return this;};
 
 
 goog.object.extend(exports, proto);

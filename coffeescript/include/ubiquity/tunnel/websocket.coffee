@@ -7,12 +7,11 @@ class WebSocketTunnel
 
   wave_in: (wave) ->
     console.log('Message received.')
-    console.log(wave)
 
   wave_out: (wave_pb) ->
-    this._send_wave(wave_pb)
+    wave_raw = wave_pb.serializeBinary()
+    this._send_wave(wave_raw)
     console.log('Message sent.')
-    console.log(wave_pb)
 
 
 class WebSocketServerTunnel extends WebSocketTunnel
@@ -27,10 +26,12 @@ class WebSocketServerTunnel extends WebSocketTunnel
 
   _connect: (ws ###: WebSocket ###) ->
     this._links.push(ws)
+    console.log('Client connected')
     this._ws.on('close', this._client_disconnect)
 
   _client_disconnect: (ws ###: WebSocket ###) ->
     this._links = this._links.filter (w) -> w isnt ws
+    console.log('Client disconnected')
 
   _send_wave: (wave_raw ###: string ###) ->
     _send = (ws) -> ws.send(wave_raw)
@@ -55,17 +56,20 @@ class WebSocketClientTunnel extends WebSocketTunnel
     this._ws.on('message', this._receive_wave)
 
   _connect: ->
-    console.log('Client Connected')
+    console.log('Connected to Server')
 
-  _client_disconnect: (ws ###: WebSocket ###) ->
-    console.log('Client Disconnected')
+  _client_disconnect: () ->
+    console.log('Disconnected from Server')
 
   _receive_wave: (message ###: string ###) ->
-    console.log(message)
+#    console.log(message)
     super.wave_in(message)
 
   _send_wave: (wave_raw ###: string ###) ->
-    this._ws.send(wave_raw)
+    if this._ws.readyState == WebSocket.OPEN
+      this._ws.send(wave_raw)
+    else
+      console.error('The socket is closed. Cannot send wave.')
 
   __str__: ###: string ### ->
     return "WS:#{this._server_host}:#{this._server_port}"

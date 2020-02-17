@@ -1,0 +1,13 @@
+FROM node:13.8.0
+
+RUN mkdir -p /js_in/ubiquity/serialization/
+
+WORKDIR /js_in/ubiquity/serialization/
+
+RUN npm install --global browserify
+
+#CMD npm install google-protobuf && \
+#    find *_pb.js -exec browserify {} -o /js_out/{} \;
+
+CMD npm install google-protobuf && \
+    browserify *_pb.js -o /js_out/Ubiquity_pb.js

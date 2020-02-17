@@ -20,6 +20,15 @@ message WavePB {
 }
 
 
+message WaveHeaderPB {
+  string id = 1;
+  WaveTypePB type = 2;
+  string shoebox = 3;
+  int64 quantum_id = 4;
+  string request_wave = 5;
+}
+
+
 enum WaveTypePB {
   NONE = 0;
   SHOEBOX = 1;
@@ -30,15 +39,6 @@ enum WaveTypePB {
   METHOD_CALL_REQUEST = 6;
   METHOD_CALL_RESPONSE = 7;
   ERROR = 20;
-}
-
-
-message WaveHeaderPB {
-  string id = 1;
-  WaveTypePB type = 2;
-  string shoebox = 3;
-  int64 quantum_id = 4;
-  string request_wave = 5;
 }
 
 

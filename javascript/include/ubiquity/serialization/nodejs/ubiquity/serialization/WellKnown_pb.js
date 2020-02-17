@@ -301,9 +301,12 @@ proto.IntPB.prototype.getInt = function() {
 };
 
 
-/** @param {boolean} value */
+/**
+ * @param {boolean} value
+ * @return {!proto.IntPB} returns this
+ */
 proto.IntPB.prototype.setInt = function(value) {
-  jspb.Message.setProto3BooleanField(this, 1, value);
+  return jspb.Message.setProto3BooleanField(this, 1, value);
 };
 
 
@@ -316,9 +319,12 @@ proto.IntPB.prototype.getValue = function() {
 };
 
 
-/** @param {number} value */
+/**
+ * @param {number} value
+ * @return {!proto.IntPB} returns this
+ */
 proto.IntPB.prototype.setValue = function(value) {
-  jspb.Message.setProto3IntField(this, 2, value);
+  return jspb.Message.setProto3IntField(this, 2, value);
 };
 
 
@@ -455,9 +461,12 @@ proto.FloatPB.prototype.getFloat = function() {
 };
 
 
-/** @param {boolean} value */
+/**
+ * @param {boolean} value
+ * @return {!proto.FloatPB} returns this
+ */
 proto.FloatPB.prototype.setFloat = function(value) {
-  jspb.Message.setProto3BooleanField(this, 1, value);
+  return jspb.Message.setProto3BooleanField(this, 1, value);
 };
 
 
@@ -470,9 +479,12 @@ proto.FloatPB.prototype.getValue = function() {
 };
 
 
-/** @param {number} value */
+/**
+ * @param {number} value
+ * @return {!proto.FloatPB} returns this
+ */
 proto.FloatPB.prototype.setValue = function(value) {
-  jspb.Message.setProto3FloatField(this, 2, value);
+  return jspb.Message.setProto3FloatField(this, 2, value);
 };
 
 
@@ -609,9 +621,12 @@ proto.StringPB.prototype.getString = function() {
 };
 
 
-/** @param {boolean} value */
+/**
+ * @param {boolean} value
+ * @return {!proto.StringPB} returns this
+ */
 proto.StringPB.prototype.setString = function(value) {
-  jspb.Message.setProto3BooleanField(this, 1, value);
+  return jspb.Message.setProto3BooleanField(this, 1, value);
 };
 
 
@@ -624,9 +639,12 @@ proto.StringPB.prototype.getValue = function() {
 };
 
 
-/** @param {string} value */
+/**
+ * @param {string} value
+ * @return {!proto.StringPB} returns this
+ */
 proto.StringPB.prototype.setValue = function(value) {
-  jspb.Message.setProto3StringField(this, 2, value);
+  return jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
@@ -763,9 +781,12 @@ proto.BoolPB.prototype.getBool = function() {
 };
 
 
-/** @param {boolean} value */
+/**
+ * @param {boolean} value
+ * @return {!proto.BoolPB} returns this
+ */
 proto.BoolPB.prototype.setBool = function(value) {
-  jspb.Message.setProto3BooleanField(this, 1, value);
+  return jspb.Message.setProto3BooleanField(this, 1, value);
 };
 
 
@@ -778,9 +799,12 @@ proto.BoolPB.prototype.getValue = function() {
 };
 
 
-/** @param {boolean} value */
+/**
+ * @param {boolean} value
+ * @return {!proto.BoolPB} returns this
+ */
 proto.BoolPB.prototype.setValue = function(value) {
-  jspb.Message.setProto3BooleanField(this, 2, value);
+  return jspb.Message.setProto3BooleanField(this, 2, value);
 };
 
 
@@ -927,9 +951,12 @@ proto.IterablePB.prototype.getIter = function() {
 };
 
 
-/** @param {boolean} value */
+/**
+ * @param {boolean} value
+ * @return {!proto.IterablePB} returns this
+ */
 proto.IterablePB.prototype.setIter = function(value) {
-  jspb.Message.setProto3BooleanField(this, 1, value);
+  return jspb.Message.setProto3BooleanField(this, 1, value);
 };
 
 
@@ -943,9 +970,12 @@ proto.IterablePB.prototype.getValuesList = function() {
 };
 
 
-/** @param {!Array<!proto.google.protobuf.Any>} value */
+/**
+ * @param {!Array<!proto.google.protobuf.Any>} value
+ * @return {!proto.IterablePB} returns this
+*/
 proto.IterablePB.prototype.setValuesList = function(value) {
-  jspb.Message.setRepeatedWrapperField(this, 2, value);
+  return jspb.Message.setRepeatedWrapperField(this, 2, value);
 };
 
 
@@ -961,9 +991,10 @@ proto.IterablePB.prototype.addValues = function(opt_value, opt_index) {
 
 /**
  * Clears the list making it empty but non-null.
+ * @return {!proto.IterablePB} returns this
  */
 proto.IterablePB.prototype.clearValuesList = function() {
-  this.setValuesList([]);
+  return this.setValuesList([]);
 };
 
 
@@ -1044,7 +1075,7 @@ proto.MapPB.deserializeBinaryFromReader = function(msg, reader) {
     case 2:
       var value = msg.getItemsMap();
       reader.readMessage(value, function(message, reader) {
-        jspb.Map.deserializeBinary(message, reader, jspb.BinaryReader.prototype.readString, jspb.BinaryReader.prototype.readMessage, proto.google.protobuf.Any.deserializeBinaryFromReader, "");
+        jspb.Map.deserializeBinary(message, reader, jspb.BinaryReader.prototype.readString, jspb.BinaryReader.prototype.readMessage, proto.google.protobuf.Any.deserializeBinaryFromReader, "", new proto.google.protobuf.Any());
          });
       break;
     default:
@@ -1099,9 +1130,12 @@ proto.MapPB.prototype.getMap = function() {
 };
 
 
-/** @param {boolean} value */
+/**
+ * @param {boolean} value
+ * @return {!proto.MapPB} returns this
+ */
 proto.MapPB.prototype.setMap = function(value) {
-  jspb.Message.setProto3BooleanField(this, 1, value);
+  return jspb.Message.setProto3BooleanField(this, 1, value);
 };
 
 
@@ -1120,10 +1154,11 @@ proto.MapPB.prototype.getItemsMap = function(opt_noLazyCreate) {
 
 /**
  * Clears values from the map. The map will be non-null.
+ * @return {!proto.MapPB} returns this
  */
 proto.MapPB.prototype.clearItemsMap = function() {
   this.getItemsMap().clear();
-};
+  return this;};
 
 
 
@@ -1247,9 +1282,12 @@ proto.NonePB.prototype.getNone = function() {
 };
 
 
-/** @param {boolean} value */
+/**
+ * @param {boolean} value
+ * @return {!proto.NonePB} returns this
+ */
 proto.NonePB.prototype.setNone = function(value) {
-  jspb.Message.setProto3BooleanField(this, 1, value);
+  return jspb.Message.setProto3BooleanField(this, 1, value);
 };
 
 

@@ -8,14 +8,14 @@
     constructor() {}
 
     wave_in(wave) {
-      console.log('Message received.');
-      return console.log(wave);
+      return console.log('Message received.');
     }
 
     wave_out(wave_pb) {
-      this._send_wave(wave_pb);
-      console.log('Message sent.');
-      return console.log(wave_pb);
+      var wave_raw;
+      wave_raw = wave_pb.serializeBinary();
+      this._send_wave(wave_raw);
+      return console.log('Message sent.');
     }
 
   };
@@ -34,13 +34,15 @@
 
     _connect(ws/*: WebSocket */) {
       this._links.push(ws);
+      console.log('Client connected');
       return this._ws.on('close', this._client_disconnect);
     }
 
     _client_disconnect(ws/*: WebSocket */) {
-      return this._links = this._links.filter(function(w) {
+      this._links = this._links.filter(function(w) {
         return w !== ws;
       });
+      return console.log('Client disconnected');
     }
 
     _send_wave(wave_raw/*: string */) {
@@ -79,20 +81,23 @@
     }
 
     _connect() {
-      return console.log('Client Connected');
+      return console.log('Connected to Server');
     }
 
-    _client_disconnect(ws/*: WebSocket */) {
-      return console.log('Client Disconnected');
+    _client_disconnect() {
+      return console.log('Disconnected from Server');
     }
 
     _receive_wave(message/*: string */) {
-      console.log(message);
       return super.wave_in(message);
     }
 
     _send_wave(wave_raw/*: string */) {
-      return this._ws.send(wave_raw);
+      if (this._ws.readyState === WebSocket.OPEN) {
+        return this._ws.send(wave_raw);
+      } else {
+        return console.error('The socket is closed. Cannot send wave.');
+      }
     }
 
     __str__()/*: string */ {

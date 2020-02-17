@@ -202,9 +202,12 @@ proto.MethodPB.prototype.getName = function() {
 };
 
 
-/** @param {string} value */
+/**
+ * @param {string} value
+ * @return {!proto.MethodPB} returns this
+ */
 proto.MethodPB.prototype.setName = function(value) {
-  jspb.Message.setProto3StringField(this, 1, value);
+  return jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -218,9 +221,12 @@ proto.MethodPB.prototype.getArgsList = function() {
 };
 
 
-/** @param {!Array<!proto.ParameterPB>} value */
+/**
+ * @param {!Array<!proto.ParameterPB>} value
+ * @return {!proto.MethodPB} returns this
+*/
 proto.MethodPB.prototype.setArgsList = function(value) {
-  jspb.Message.setRepeatedWrapperField(this, 2, value);
+  return jspb.Message.setRepeatedWrapperField(this, 2, value);
 };
 
 
@@ -236,9 +242,10 @@ proto.MethodPB.prototype.addArgs = function(opt_value, opt_index) {
 
 /**
  * Clears the list making it empty but non-null.
+ * @return {!proto.MethodPB} returns this
  */
 proto.MethodPB.prototype.clearArgsList = function() {
-  this.setArgsList([]);
+  return this.setArgsList([]);
 };
 
 
@@ -415,9 +422,12 @@ proto.ParameterPB.prototype.getName = function() {
 };
 
 
-/** @param {string} value */
+/**
+ * @param {string} value
+ * @return {!proto.ParameterPB} returns this
+ */
 proto.ParameterPB.prototype.setName = function(value) {
-  jspb.Message.setProto3StringField(this, 1, value);
+  return jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -430,9 +440,12 @@ proto.ParameterPB.prototype.getType = function() {
 };
 
 
-/** @param {!proto.ParameterTypePB} value */
+/**
+ * @param {!proto.ParameterTypePB} value
+ * @return {!proto.ParameterPB} returns this
+ */
 proto.ParameterPB.prototype.setType = function(value) {
-  jspb.Message.setProto3EnumField(this, 2, value);
+  return jspb.Message.setProto3EnumField(this, 2, value);
 };
 
 
@@ -445,9 +458,12 @@ proto.ParameterPB.prototype.getAnnotation = function() {
 };
 
 
-/** @param {string} value */
+/**
+ * @param {string} value
+ * @return {!proto.ParameterPB} returns this
+ */
 proto.ParameterPB.prototype.setAnnotation = function(value) {
-  jspb.Message.setProto3StringField(this, 3, value);
+  return jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
@@ -461,17 +477,21 @@ proto.ParameterPB.prototype.getDefaultValue = function() {
 };
 
 
-/** @param {?proto.google.protobuf.Any|undefined} value */
+/**
+ * @param {?proto.google.protobuf.Any|undefined} value
+ * @return {!proto.ParameterPB} returns this
+*/
 proto.ParameterPB.prototype.setDefaultValue = function(value) {
-  jspb.Message.setWrapperField(this, 4, value);
+  return jspb.Message.setWrapperField(this, 4, value);
 };
 
 
 /**
  * Clears the message field making it undefined.
+ * @return {!proto.ParameterPB} returns this
  */
 proto.ParameterPB.prototype.clearDefaultValue = function() {
-  this.setDefaultValue(undefined);
+  return this.setDefaultValue(undefined);
 };
 
 
@@ -494,17 +514,21 @@ proto.ParameterPB.prototype.getValue = function() {
 };
 
 
-/** @param {?proto.google.protobuf.Any|undefined} value */
+/**
+ * @param {?proto.google.protobuf.Any|undefined} value
+ * @return {!proto.ParameterPB} returns this
+*/
 proto.ParameterPB.prototype.setValue = function(value) {
-  jspb.Message.setWrapperField(this, 5, value);
+  return jspb.Message.setWrapperField(this, 5, value);
 };
 
 
 /**
  * Clears the message field making it undefined.
+ * @return {!proto.ParameterPB} returns this
  */
 proto.ParameterPB.prototype.clearValue = function() {
-  this.setValue(undefined);
+  return this.setValue(undefined);
 };
 
 

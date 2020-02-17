@@ -488,17 +488,21 @@ proto.WavePB.prototype.getHeader = function() {
 };
 
 
-/** @param {?proto.WaveHeaderPB|undefined} value */
+/**
+ * @param {?proto.WaveHeaderPB|undefined} value
+ * @return {!proto.WavePB} returns this
+*/
 proto.WavePB.prototype.setHeader = function(value) {
-  jspb.Message.setWrapperField(this, 1, value);
+  return jspb.Message.setWrapperField(this, 1, value);
 };
 
 
 /**
  * Clears the message field making it undefined.
+ * @return {!proto.WavePB} returns this
  */
 proto.WavePB.prototype.clearHeader = function() {
-  this.setHeader(undefined);
+  return this.setHeader(undefined);
 };
 
 
@@ -521,17 +525,21 @@ proto.WavePB.prototype.getShoebox = function() {
 };
 
 
-/** @param {?proto.ShoeboxPB|undefined} value */
+/**
+ * @param {?proto.ShoeboxPB|undefined} value
+ * @return {!proto.WavePB} returns this
+*/
 proto.WavePB.prototype.setShoebox = function(value) {
-  jspb.Message.setOneofWrapperField(this, 10, proto.WavePB.oneofGroups_[0], value);
+  return jspb.Message.setOneofWrapperField(this, 10, proto.WavePB.oneofGroups_[0], value);
 };
 
 
 /**
  * Clears the message field making it undefined.
+ * @return {!proto.WavePB} returns this
  */
 proto.WavePB.prototype.clearShoebox = function() {
-  this.setShoebox(undefined);
+  return this.setShoebox(undefined);
 };
 
 
@@ -554,17 +562,21 @@ proto.WavePB.prototype.getFieldGetRequest = function() {
 };
 
 
-/** @param {?proto.FieldGetRequestPB|undefined} value */
+/**
+ * @param {?proto.FieldGetRequestPB|undefined} value
+ * @return {!proto.WavePB} returns this
+*/
 proto.WavePB.prototype.setFieldGetRequest = function(value) {
-  jspb.Message.setOneofWrapperField(this, 11, proto.WavePB.oneofGroups_[0], value);
+  return jspb.Message.setOneofWrapperField(this, 11, proto.WavePB.oneofGroups_[0], value);
 };
 
 
 /**
  * Clears the message field making it undefined.
+ * @return {!proto.WavePB} returns this
  */
 proto.WavePB.prototype.clearFieldGetRequest = function() {
-  this.setFieldGetRequest(undefined);
+  return this.setFieldGetRequest(undefined);
 };
 
 
@@ -587,17 +599,21 @@ proto.WavePB.prototype.getFieldGetResponse = function() {
 };
 
 
-/** @param {?proto.FieldGetResponsePB|undefined} value */
+/**
+ * @param {?proto.FieldGetResponsePB|undefined} value
+ * @return {!proto.WavePB} returns this
+*/
 proto.WavePB.prototype.setFieldGetResponse = function(value) {
-  jspb.Message.setOneofWrapperField(this, 12, proto.WavePB.oneofGroups_[0], value);
+  return jspb.Message.setOneofWrapperField(this, 12, proto.WavePB.oneofGroups_[0], value);
 };
 
 
 /**
  * Clears the message field making it undefined.
+ * @return {!proto.WavePB} returns this
  */
 proto.WavePB.prototype.clearFieldGetResponse = function() {
-  this.setFieldGetResponse(undefined);
+  return this.setFieldGetResponse(undefined);
 };
 
 
@@ -620,17 +636,21 @@ proto.WavePB.prototype.getFieldSetRequest = function() {
 };
 
 
-/** @param {?proto.FieldSetRequestPB|undefined} value */
+/**
+ * @param {?proto.FieldSetRequestPB|undefined} value
+ * @return {!proto.WavePB} returns this
+*/
 proto.WavePB.prototype.setFieldSetRequest = function(value) {
-  jspb.Message.setOneofWrapperField(this, 13, proto.WavePB.oneofGroups_[0], value);
+  return jspb.Message.setOneofWrapperField(this, 13, proto.WavePB.oneofGroups_[0], value);
 };
 
 
 /**
  * Clears the message field making it undefined.
+ * @return {!proto.WavePB} returns this
  */
 proto.WavePB.prototype.clearFieldSetRequest = function() {
-  this.setFieldSetRequest(undefined);
+  return this.setFieldSetRequest(undefined);
 };
 
 
@@ -653,17 +673,21 @@ proto.WavePB.prototype.getFieldSetResponse = function() {
 };
 
 
-/** @param {?proto.FieldSetResponsePB|undefined} value */
+/**
+ * @param {?proto.FieldSetResponsePB|undefined} value
+ * @return {!proto.WavePB} returns this
+*/
 proto.WavePB.prototype.setFieldSetResponse = function(value) {
-  jspb.Message.setOneofWrapperField(this, 14, proto.WavePB.oneofGroups_[0], value);
+  return jspb.Message.setOneofWrapperField(this, 14, proto.WavePB.oneofGroups_[0], value);
 };
 
 
 /**
  * Clears the message field making it undefined.
+ * @return {!proto.WavePB} returns this
  */
 proto.WavePB.prototype.clearFieldSetResponse = function() {
-  this.setFieldSetResponse(undefined);
+  return this.setFieldSetResponse(undefined);
 };
 
 
@@ -686,17 +710,21 @@ proto.WavePB.prototype.getMethodCallRequest = function() {
 };
 
 
-/** @param {?proto.MethodCallRequestPB|undefined} value */
+/**
+ * @param {?proto.MethodCallRequestPB|undefined} value
+ * @return {!proto.WavePB} returns this
+*/
 proto.WavePB.prototype.setMethodCallRequest = function(value) {
-  jspb.Message.setOneofWrapperField(this, 15, proto.WavePB.oneofGroups_[0], value);
+  return jspb.Message.setOneofWrapperField(this, 15, proto.WavePB.oneofGroups_[0], value);
 };
 
 
 /**
  * Clears the message field making it undefined.
+ * @return {!proto.WavePB} returns this
  */
 proto.WavePB.prototype.clearMethodCallRequest = function() {
-  this.setMethodCallRequest(undefined);
+  return this.setMethodCallRequest(undefined);
 };
 
 
@@ -719,17 +747,21 @@ proto.WavePB.prototype.getMethodCallResponse = function() {
 };
 
 
-/** @param {?proto.MethodCallResponsePB|undefined} value */
+/**
+ * @param {?proto.MethodCallResponsePB|undefined} value
+ * @return {!proto.WavePB} returns this
+*/
 proto.WavePB.prototype.setMethodCallResponse = function(value) {
-  jspb.Message.setOneofWrapperField(this, 16, proto.WavePB.oneofGroups_[0], value);
+  return jspb.Message.setOneofWrapperField(this, 16, proto.WavePB.oneofGroups_[0], value);
 };
 
 
 /**
  * Clears the message field making it undefined.
+ * @return {!proto.WavePB} returns this
  */
 proto.WavePB.prototype.clearMethodCallResponse = function() {
-  this.setMethodCallResponse(undefined);
+  return this.setMethodCallResponse(undefined);
 };
 
 
@@ -752,17 +784,21 @@ proto.WavePB.prototype.getError = function() {
 };
 
 
-/** @param {?proto.ErrorPB|undefined} value */
+/**
+ * @param {?proto.ErrorPB|undefined} value
+ * @return {!proto.WavePB} returns this
+*/
 proto.WavePB.prototype.setError = function(value) {
-  jspb.Message.setOneofWrapperField(this, 17, proto.WavePB.oneofGroups_[0], value);
+  return jspb.Message.setOneofWrapperField(this, 17, proto.WavePB.oneofGroups_[0], value);
 };
 
 
 /**
  * Clears the message field making it undefined.
+ * @return {!proto.WavePB} returns this
  */
 proto.WavePB.prototype.clearError = function() {
-  this.setError(undefined);
+  return this.setError(undefined);
 };
 
 
@@ -944,9 +980,12 @@ proto.WaveHeaderPB.prototype.getId = function() {
 };
 
 
-/** @param {string} value */
+/**
+ * @param {string} value
+ * @return {!proto.WaveHeaderPB} returns this
+ */
 proto.WaveHeaderPB.prototype.setId = function(value) {
-  jspb.Message.setProto3StringField(this, 1, value);
+  return jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -959,9 +998,12 @@ proto.WaveHeaderPB.prototype.getType = function() {
 };
 
 
-/** @param {!proto.WaveTypePB} value */
+/**
+ * @param {!proto.WaveTypePB} value
+ * @return {!proto.WaveHeaderPB} returns this
+ */
 proto.WaveHeaderPB.prototype.setType = function(value) {
-  jspb.Message.setProto3EnumField(this, 2, value);
+  return jspb.Message.setProto3EnumField(this, 2, value);
 };
 
 
@@ -974,9 +1016,12 @@ proto.WaveHeaderPB.prototype.getShoebox = function() {
 };
 
 
-/** @param {string} value */
+/**
+ * @param {string} value
+ * @return {!proto.WaveHeaderPB} returns this
+ */
 proto.WaveHeaderPB.prototype.setShoebox = function(value) {
-  jspb.Message.setProto3StringField(this, 3, value);
+  return jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
@@ -989,9 +1034,12 @@ proto.WaveHeaderPB.prototype.getQuantumId = function() {
 };
 
 
-/** @param {number} value */
+/**
+ * @param {number} value
+ * @return {!proto.WaveHeaderPB} returns this
+ */
 proto.WaveHeaderPB.prototype.setQuantumId = function(value) {
-  jspb.Message.setProto3IntField(this, 4, value);
+  return jspb.Message.setProto3IntField(this, 4, value);
 };
 
 
@@ -1004,9 +1052,12 @@ proto.WaveHeaderPB.prototype.getRequestWave = function() {
 };
 
 
-/** @param {string} value */
+/**
+ * @param {string} value
+ * @return {!proto.WaveHeaderPB} returns this
+ */
 proto.WaveHeaderPB.prototype.setRequestWave = function(value) {
-  jspb.Message.setProto3StringField(this, 5, value);
+  return jspb.Message.setProto3StringField(this, 5, value);
 };
 
 
@@ -1134,17 +1185,21 @@ proto.FieldGetRequestPB.prototype.getField = function() {
 };
 
 
-/** @param {?proto.FieldPB|undefined} value */
+/**
+ * @param {?proto.FieldPB|undefined} value
+ * @return {!proto.FieldGetRequestPB} returns this
+*/
 proto.FieldGetRequestPB.prototype.setField = function(value) {
-  jspb.Message.setWrapperField(this, 1, value);
+  return jspb.Message.setWrapperField(this, 1, value);
 };
 
 
 /**
  * Clears the message field making it undefined.
+ * @return {!proto.FieldGetRequestPB} returns this
  */
 proto.FieldGetRequestPB.prototype.clearField = function() {
-  this.setField(undefined);
+  return this.setField(undefined);
 };
 
 
@@ -1281,17 +1336,21 @@ proto.FieldGetResponsePB.prototype.getReturnValue = function() {
 };
 
 
-/** @param {?proto.google.protobuf.Any|undefined} value */
+/**
+ * @param {?proto.google.protobuf.Any|undefined} value
+ * @return {!proto.FieldGetResponsePB} returns this
+*/
 proto.FieldGetResponsePB.prototype.setReturnValue = function(value) {
-  jspb.Message.setWrapperField(this, 2, value);
+  return jspb.Message.setWrapperField(this, 2, value);
 };
 
 
 /**
  * Clears the message field making it undefined.
+ * @return {!proto.FieldGetResponsePB} returns this
  */
 proto.FieldGetResponsePB.prototype.clearReturnValue = function() {
-  this.setReturnValue(undefined);
+  return this.setReturnValue(undefined);
 };
 
 
@@ -1428,17 +1487,21 @@ proto.FieldSetRequestPB.prototype.getField = function() {
 };
 
 
-/** @param {?proto.FieldPB|undefined} value */
+/**
+ * @param {?proto.FieldPB|undefined} value
+ * @return {!proto.FieldSetRequestPB} returns this
+*/
 proto.FieldSetRequestPB.prototype.setField = function(value) {
-  jspb.Message.setWrapperField(this, 1, value);
+  return jspb.Message.setWrapperField(this, 1, value);
 };
 
 
 /**
  * Clears the message field making it undefined.
+ * @return {!proto.FieldSetRequestPB} returns this
  */
 proto.FieldSetRequestPB.prototype.clearField = function() {
-  this.setField(undefined);
+  return this.setField(undefined);
 };
 
 
@@ -1713,17 +1776,21 @@ proto.MethodCallRequestPB.prototype.getMethod = function() {
 };
 
 
-/** @param {?proto.MethodPB|undefined} value */
+/**
+ * @param {?proto.MethodPB|undefined} value
+ * @return {!proto.MethodCallRequestPB} returns this
+*/
 proto.MethodCallRequestPB.prototype.setMethod = function(value) {
-  jspb.Message.setWrapperField(this, 1, value);
+  return jspb.Message.setWrapperField(this, 1, value);
 };
 
 
 /**
  * Clears the message field making it undefined.
+ * @return {!proto.MethodCallRequestPB} returns this
  */
 proto.MethodCallRequestPB.prototype.clearMethod = function() {
-  this.setMethod(undefined);
+  return this.setMethod(undefined);
 };
 
 
@@ -1746,9 +1813,12 @@ proto.MethodCallRequestPB.prototype.getArgumentsList = function() {
 };
 
 
-/** @param {!Array<!proto.ParameterPB>} value */
+/**
+ * @param {!Array<!proto.ParameterPB>} value
+ * @return {!proto.MethodCallRequestPB} returns this
+*/
 proto.MethodCallRequestPB.prototype.setArgumentsList = function(value) {
-  jspb.Message.setRepeatedWrapperField(this, 2, value);
+  return jspb.Message.setRepeatedWrapperField(this, 2, value);
 };
 
 
@@ -1764,9 +1834,10 @@ proto.MethodCallRequestPB.prototype.addArguments = function(opt_value, opt_index
 
 /**
  * Clears the list making it empty but non-null.
+ * @return {!proto.MethodCallRequestPB} returns this
  */
 proto.MethodCallRequestPB.prototype.clearArgumentsList = function() {
-  this.setArgumentsList([]);
+  return this.setArgumentsList([]);
 };
 
 
@@ -1780,9 +1851,12 @@ proto.MethodCallRequestPB.prototype.getKwargumentsList = function() {
 };
 
 
-/** @param {!Array<!proto.ParameterPB>} value */
+/**
+ * @param {!Array<!proto.ParameterPB>} value
+ * @return {!proto.MethodCallRequestPB} returns this
+*/
 proto.MethodCallRequestPB.prototype.setKwargumentsList = function(value) {
-  jspb.Message.setRepeatedWrapperField(this, 3, value);
+  return jspb.Message.setRepeatedWrapperField(this, 3, value);
 };
 
 
@@ -1798,9 +1872,10 @@ proto.MethodCallRequestPB.prototype.addKwarguments = function(opt_value, opt_ind
 
 /**
  * Clears the list making it empty but non-null.
+ * @return {!proto.MethodCallRequestPB} returns this
  */
 proto.MethodCallRequestPB.prototype.clearKwargumentsList = function() {
-  this.setKwargumentsList([]);
+  return this.setKwargumentsList([]);
 };
 
 
@@ -1928,17 +2003,21 @@ proto.MethodCallResponsePB.prototype.getReturnValue = function() {
 };
 
 
-/** @param {?proto.google.protobuf.Any|undefined} value */
+/**
+ * @param {?proto.google.protobuf.Any|undefined} value
+ * @return {!proto.MethodCallResponsePB} returns this
+*/
 proto.MethodCallResponsePB.prototype.setReturnValue = function(value) {
-  jspb.Message.setWrapperField(this, 2, value);
+  return jspb.Message.setWrapperField(this, 2, value);
 };
 
 
 /**
  * Clears the message field making it undefined.
+ * @return {!proto.MethodCallResponsePB} returns this
  */
 proto.MethodCallResponsePB.prototype.clearReturnValue = function() {
-  this.setReturnValue(undefined);
+  return this.setReturnValue(undefined);
 };
 
 
@@ -2072,9 +2151,12 @@ proto.ErrorPB.prototype.getError = function() {
 };
 
 
-/** @param {string} value */
+/**
+ * @param {string} value
+ * @return {!proto.ErrorPB} returns this
+ */
 proto.ErrorPB.prototype.setError = function(value) {
-  jspb.Message.setProto3StringField(this, 1, value);
+  return jspb.Message.setProto3StringField(this, 1, value);
 };
 
 

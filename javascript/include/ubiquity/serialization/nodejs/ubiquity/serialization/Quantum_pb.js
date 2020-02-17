@@ -196,9 +196,12 @@ proto.QuantumPB.prototype.getId = function() {
 };
 
 
-/** @param {number} value */
+/**
+ * @param {number} value
+ * @return {!proto.QuantumPB} returns this
+ */
 proto.QuantumPB.prototype.setId = function(value) {
-  jspb.Message.setProto3IntField(this, 1, value);
+  return jspb.Message.setProto3IntField(this, 1, value);
 };
 
 
@@ -212,9 +215,12 @@ proto.QuantumPB.prototype.getFieldsList = function() {
 };
 
 
-/** @param {!Array<!proto.FieldPB>} value */
+/**
+ * @param {!Array<!proto.FieldPB>} value
+ * @return {!proto.QuantumPB} returns this
+*/
 proto.QuantumPB.prototype.setFieldsList = function(value) {
-  jspb.Message.setRepeatedWrapperField(this, 2, value);
+  return jspb.Message.setRepeatedWrapperField(this, 2, value);
 };
 
 
@@ -230,9 +236,10 @@ proto.QuantumPB.prototype.addFields = function(opt_value, opt_index) {
 
 /**
  * Clears the list making it empty but non-null.
+ * @return {!proto.QuantumPB} returns this
  */
 proto.QuantumPB.prototype.clearFieldsList = function() {
-  this.setFieldsList([]);
+  return this.setFieldsList([]);
 };
 
 
@@ -246,9 +253,12 @@ proto.QuantumPB.prototype.getMethodsList = function() {
 };
 
 
-/** @param {!Array<!proto.MethodPB>} value */
+/**
+ * @param {!Array<!proto.MethodPB>} value
+ * @return {!proto.QuantumPB} returns this
+*/
 proto.QuantumPB.prototype.setMethodsList = function(value) {
-  jspb.Message.setRepeatedWrapperField(this, 3, value);
+  return jspb.Message.setRepeatedWrapperField(this, 3, value);
 };
 
 
@@ -264,9 +274,10 @@ proto.QuantumPB.prototype.addMethods = function(opt_value, opt_index) {
 
 /**
  * Clears the list making it empty but non-null.
+ * @return {!proto.QuantumPB} returns this
  */
 proto.QuantumPB.prototype.clearMethodsList = function() {
-  this.setMethodsList([]);
+  return this.setMethodsList([]);
 };
 
 
