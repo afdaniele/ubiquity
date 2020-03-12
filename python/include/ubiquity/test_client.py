@@ -1,6 +1,6 @@
 import os
 
-os.environ['UBIQUITY_VERBOSE'] = '1'
+# os.environ['UBIQUITY_VERBOSE'] = '1'
 
 from ubiquity import Shoebox
 from ubiquity.tunnel.websocket import WebSocketClientTunnel

@@ -1,6 +1,8 @@
 uuid4 = require('uuid4')
 
 DEFAULT_TIMEOUT_SECS = 10
+PRIMITIVE_TYPES = [number, String, null]
+ITERABLE_TYPES = [Array, Set]
 
 class Logger
   constructor: (name) ->
@@ -337,5 +339,65 @@ class Quantum
       .setFieldsList(_f field for field in this._fields)
       .setMethodsList(_m method for method in this._methods)
 
-  deserialize: (quantum_id ###: QuantumID ###) ###: Quantum ### ->
-    #TODO: implement this
+  deserialize: (quantum_pb ###: QuantumPB ###) ###: Quantum ### ->
+    quantum = Quantum(quantum_pb.getId())
+    for field in quantum_pb.getFieldsList()
+      quantum.add_field(Field(field.getName(), field.getType()))
+    for method in quantum_pb.getMethodsList()
+      quantum.add_method(Method(
+        method.getName(),
+        (
+          Parameter(
+            p.getName(),
+            ParameterType(p.getType()),
+            p.getAnnotation(),
+            deserialize_any(p.getDefaultValue())
+          ) for p in method.getArgsList()
+        )
+      ))
+    return quantum
+
+  toString: ###: string ### ->
+    return "QT+{#{this._id}}"
+
+  __str__: ###: string ### ->
+    return this.toString()
+
+  from_object: (obj ###: Any ###, quantum_id ###: QuantumID ###) ###: Tuple[QuantumID, Quantum] ### ->
+    # base case: already a quantum
+    if obj instanceof Quantum
+      return [obj.id, obj]
+    # base case: quantumStubs are for local use only, cannot turn it back into a quantum
+    if obj instanceof QuantumStub
+        throw 'Objects of type QuantumStub cannot be turned back into a Quantum'
+    # if the ID is not given, a new one will be assigned
+    # TODO: fix this as there is no id() function in JS
+    if quantum_id is null
+      quantum_id = 0
+    # create stub for the object
+    stub = Quantum(quantum_id)
+    # add fields to stub
+    # TODO: find something similar to gemembers()
+    # add methods to stub
+    # TODO: find something similar to gemembers()
+    # ---
+    return [quantum_id, stub]
+
+  to_stub: (destination ###: ShoeboxIF ###) ###: QuantumStub ### ->
+    # TODO: find something similar to property()
+    return 0
+
+  build_stubs: (obj ###: Any ###, shoebox ###: ShoeboxIF ###) ###: Any ### ->
+    # primitives
+    for type in PRIMITIVE_TYPES
+      if obj instanceof type
+        return obj
+    # iterables
+    for type in ITERABLE_TYPES
+      if obj instanceof type
+        return (Quantum.build_stubs(e, shoebox) for e in obj)
+    # Quantum
+    if obj instanceof Quantum
+      return obj.to_stub(shoebox)
+    # ---
+    throw "Cannot build Stub for object of type {#{typeof obj}}"
